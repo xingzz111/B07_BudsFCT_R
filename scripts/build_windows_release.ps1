@@ -61,11 +61,23 @@ Write-Host "Version: $Version"
 if ($SkipPyInstaller) { Write-Host "Mode: SkipPyInstaller (prebuilt UI exe + sign/package only)" }
 
 #
-# Ensure release site-packages includes runtime deps (bundled to C:\site-packages)
+# Ensure release site-packages includes runtime deps (bundled to C:\Python\Lib\site-packages)
 #
 Ensure-Dir $sitePkgs
 & $Python -m pip install --upgrade pip | Out-Null
-& $Python -m pip install --target $sitePkgs --upgrade "pywinpty" "pyzmq"
+
+# Clean specific packages to avoid broken vendored trees shadowing wheels
+foreach ($p in @(
+  (Join-Path $sitePkgs "zmq"),
+  (Join-Path $sitePkgs "winpty")
+)) {
+  if (Test-Path -LiteralPath $p) { Remove-Item -Recurse -Force $p -ErrorAction SilentlyContinue }
+}
+Get-ChildItem -Path $sitePkgs -Filter "pyzmq-*.dist-info" -ErrorAction SilentlyContinue | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
+Get-ChildItem -Path $sitePkgs -Filter "pywinpty-*.dist-info" -ErrorAction SilentlyContinue | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
+
+# Force binary wheels on Windows so zmq includes compiled _zmq*.pyd
+& $Python -m pip install --only-binary=:all: --target $sitePkgs --upgrade "pywinpty" "pyzmq"
 
 #
 # Step 1: Build OSENSTester (PyInstaller) or package prebuilt exe
