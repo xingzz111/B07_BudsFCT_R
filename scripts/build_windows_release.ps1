@@ -60,23 +60,13 @@ Write-Host "ReleaseDir: $release"
 Write-Host "Version: $Version"
 if ($SkipPyInstaller) { Write-Host "Mode: SkipPyInstaller (prebuilt UI exe + sign/package only)" }
 
-# Ensure release site-packages includes runtime deps (bundled to C:\Python\Lib\site-packages)
-#
-Ensure-Dir $sitePkgs
-& $Python -m pip install --upgrade pip | Out-Null
-
-# Clean specific packages to avoid broken vendored trees shadowing wheels
-foreach ($p in @(
-  (Join-Path $sitePkgs "zmq"),
-  (Join-Path $sitePkgs "winpty")
-)) {
-  if (Test-Path -LiteralPath $p) { Remove-Item -Recurse -Force $p -ErrorAction SilentlyContinue }
+if (-not $SkipPyInstaller) {
+  # Full builds may need to refresh runtime deps. Package-only builds must use
+  # the committed release site-packages as-is.
+  Ensure-Dir $sitePkgs
+  & $Python -m pip install --upgrade pip | Out-Null
+  & $Python -m pip install --only-binary=:all: --target $sitePkgs --upgrade "pywinpty" "pyzmq"
 }
-Get-ChildItem -Path $sitePkgs -Filter "pyzmq-*.dist-info" -ErrorAction SilentlyContinue | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
-Get-ChildItem -Path $sitePkgs -Filter "pywinpty-*.dist-info" -ErrorAction SilentlyContinue | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
-
-# Force binary wheels on Windows so zmq includes compiled _zmq*.pyd
-& $Python -m pip install --only-binary=:all: --target $sitePkgs --upgrade "pywinpty" "pyzmq"
 
 #
 # Step 1: Build OSENSTester (PyInstaller) or package prebuilt exe
@@ -145,9 +135,6 @@ try {
   if (Test-Path -LiteralPath ".\__init__.py") {
     Copy-Item ".\__init__.py" ".\OSENSTester\" -Force
   }
-
-  & ".\src\signer\signer_win.exe" -d ".\OSENSTester"
-  if (-not $?) { throw "signer_win.exe failed signing OSENSTester (exit=$LASTEXITCODE)" }
 }
 finally {
   Pop-Location
@@ -162,6 +149,11 @@ Copy-Item (Join-Path $common "OSENSTester") $releaseOsens -Recurse -Force
 if (Test-Path -LiteralPath (Join-Path $common "OSENSTester")) {
   Remove-Item -Recurse -Force (Join-Path $common "OSENSTester")
 }
+
+# Sign the actual release payload after it lands in code_Release_BudsFCT_R.
+$payloadSigner = Join-Path $common "src\\signer\\signer_win.exe"
+& $payloadSigner -d $releaseOsens
+if (-not $?) { throw "signer_win.exe failed signing release OSENSTester (exit=$LASTEXITCODE)" }
 
 #
 # Step 2: Sync Overlay sources into release dir Overlay/
