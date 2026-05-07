@@ -158,6 +158,15 @@ Push-Location $release
 try {
   Ensure-Dir ".\Output"
   & iscc.exe "/DMyAppVersion=$Version" ".\CodeExample_code_testplan.iss"
+
+  # Sign installer output so Windows shows trusted (green lock).
+  $signer = Join-Path $common "src\\signer\\signer_win.exe"
+  if (Test-Path -LiteralPath $signer) {
+    & $signer -d ".\\Output"
+  }
+  else {
+    Write-Warning "signer_win.exe not found at $signer (skipping installer signing)"
+  }
 }
 finally {
   Pop-Location

@@ -13,3 +13,6 @@ code_Release_BudsFCT_R/site-packages/**/*.whl filter=lfs diff=lfs merge=lfs -tex
 code_Release_BudsFCT_R/site-packages/**/*.pyd filter=lfs diff=lfs merge=lfs -text
 code_Release_BudsFCT_R/site-packages/**/*.dat filter=lfs diff=lfs merge=lfs -text
 code_Release_BudsFCT_R/site-packages/**/*.so filter=lfs diff=lfs merge=lfs -text
+code_Release_BudsFCT_R/site-packages/winpty/*.pyd filter=lfs diff=lfs merge=lfs -text
+code_Release_BudsFCT_R/site-packages/winpty/*.exe filter=lfs diff=lfs merge=lfs -text
+code_Release_BudsFCT_R/site-packages/winpty/*.dll filter=lfs diff=lfs merge=lfs -text
