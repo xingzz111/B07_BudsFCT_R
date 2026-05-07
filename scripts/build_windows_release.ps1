@@ -39,6 +39,7 @@ $repo = (Resolve-Path $RepoRoot).Path
 $common = Join-Path $repo "CommonPlatform"
 $engine = Join-Path $repo "engine"
 $release = Join-Path $repo $ReleaseDir
+$sitePkgs = Join-Path $release "site-packages"
 
 if (!(Test-Path -LiteralPath $common)) { throw "Missing CommonPlatform at $common" }
 if (!(Test-Path -LiteralPath $engine)) { throw "Missing engine at $engine" }
@@ -60,6 +61,13 @@ Write-Host "Version: $Version"
 if ($SkipPyInstaller) { Write-Host "Mode: SkipPyInstaller (prebuilt UI exe + sign/package only)" }
 
 #
+# Ensure release site-packages includes pywinpty (winPty)
+#
+Ensure-Dir $sitePkgs
+& $Python -m pip install --upgrade pip | Out-Null
+& $Python -m pip install --target $sitePkgs --upgrade "pywinpty"
+
+#
 # Step 1: Build OSENSTester (PyInstaller) or package prebuilt exe
 #
 Push-Location $common
@@ -69,13 +77,11 @@ try {
   if (Test-Path -LiteralPath ".\OSENSTester") { Remove-Item -Recurse -Force ".\OSENSTester" }
 
   if (-not $SkipPyInstaller) {
-    & $Python -m pip install --upgrade pip | Out-Null
     & $Python -m pip install -r ".\requirements-build.txt"
 
     # Prefer venv site-packages first so pip-installed pyzmq wins over any vendored
     # incomplete `zmq` tree under release site-packages (which would shadow imports).
     $venvSite = & $Python -c "import site; print(site.getsitepackages()[0])"
-    $sitePkgs = Join-Path $release "site-packages"
     if (Test-Path -LiteralPath $sitePkgs) {
       if ($env:PYTHONPATH) {
         $env:PYTHONPATH = "$venvSite;$sitePkgs;$env:PYTHONPATH"
@@ -123,12 +129,6 @@ try {
   Copy-Item (Join-Path $engine "*") ".\dist\engine\" -Recurse -Force
   Copy-Item (Join-Path $engine "profile\*.csv") ".\dist\profile\" -Force -ErrorAction SilentlyContinue
 
-  # Keep R packages clean: remove L legacy CSVs from packaged engine profiles before signing
-  $distEngineProfiles = ".\dist\engine\profile"
-  if (Test-Path -LiteralPath $distEngineProfiles) {
-    Get-ChildItem -Path $distEngineProfiles -Recurse -Filter "BUDS_FCT_L__*.csv" -ErrorAction SilentlyContinue | Remove-Item -Force -ErrorAction SilentlyContinue
-  }
-
   & ".\src\signer\signer_win.exe" -d ".\dist"
   if (-not $?) { throw "signer_win.exe failed signing dist (exit=$LASTEXITCODE)" }
 
@@ -157,12 +157,6 @@ $releaseOverlay = Join-Path $release "Overlay"
 Ensure-Dir $releaseOverlay
 Sync-Dir $common (Join-Path $releaseOverlay "CommonPlatform")
 Sync-Dir $engine (Join-Path $releaseOverlay "engine")
-
-# Keep R packages clean: remove L legacy CSVs from packaged Overlay
-$overlayEngineProfiles = Join-Path $releaseOverlay "engine\\profile"
-if (Test-Path -LiteralPath $overlayEngineProfiles) {
-  Get-ChildItem -Path $overlayEngineProfiles -Recurse -Filter "BUDS_FCT_L__*.csv" -ErrorAction SilentlyContinue | Remove-Item -Force -ErrorAction SilentlyContinue
-}
 
 #
 # Step 2: Build installer via Inno Setup (expects iscc.exe in PATH)
