@@ -137,7 +137,7 @@ class MESDayLog(object):
             print("log_upload_swith =", log_upload_swith)
 
             __data = [
-                "OSENS",
+                mes_config.PROJECT_CODE,
                 sn,
                 mes_config.TERMINAL_NAME,
                 site + 1,

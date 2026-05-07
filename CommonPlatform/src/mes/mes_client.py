@@ -20,7 +20,7 @@ class MesClient(HttpClient):
 
     TIME_OUT = 10
 
-    OP_ID = 'A001'
+    OP_ID = 'Test user'
 
     def __init__(self, publisher=None, params_prefix='strjson'):
         _header = {

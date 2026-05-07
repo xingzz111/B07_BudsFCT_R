@@ -61,11 +61,11 @@ Write-Host "Version: $Version"
 if ($SkipPyInstaller) { Write-Host "Mode: SkipPyInstaller (prebuilt UI exe + sign/package only)" }
 
 #
-# Ensure release site-packages includes pywinpty (winPty)
+# Ensure release site-packages includes runtime deps (bundled to C:\site-packages)
 #
 Ensure-Dir $sitePkgs
 & $Python -m pip install --upgrade pip | Out-Null
-& $Python -m pip install --target $sitePkgs --upgrade "pywinpty"
+& $Python -m pip install --target $sitePkgs --upgrade "pywinpty" "pyzmq"
 
 #
 # Step 1: Build OSENSTester (PyInstaller) or package prebuilt exe

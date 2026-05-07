@@ -193,10 +193,12 @@ class MESLogServer(Thread):
         parse_data = re.search("\w+\.\w+\(", data)
 
         if parse_data:
-            if "calibration_mode" in parse_data.group(0):
+            if "calibration_mode" in parse_data.group(0) or "audio_record" in parse_data.group(0) or "read_calibration_cell" in parse_data.group(0) or "VOLT_MEAS_MUX_SEL_BUD_TP34_QCC_BAT_STB" in data:
                 return
             self.log_in_list.append(str(data))
         else:
+            if self.log_in_list == []:
+                return
             self.dut_log_list.append({"log_in": "\n".join(self.log_in_list)})
             self.log_in_list = list()
             self.dut_log_list.append({"log_out": str(data)})

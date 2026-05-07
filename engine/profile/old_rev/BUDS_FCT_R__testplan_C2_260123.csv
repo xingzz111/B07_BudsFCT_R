@@ -1,0 +1,109 @@
+Disable,Group,SubTestName,SubSubTestName,Function,Input,Output,Timeout,Policy,LowerLimit,UpperLimit,Units,Condition,StopOnFail,Notes
+,FCT,Info,@Get_BMT_Version,common.run_bmt_cmd,"{'cmd_key':'GET_VERSION', 'parse_pattern':'BMT: (.*),'}",,50000,,5.3.0-1384+a170927,5.3.0-1384+a170927,,,,BMT
+,FCT,Info,@Get_TestEngine_Version,common.run_bmt_cmd,"{'cmd_key':'GET_TESTENGINE_VERSION', 'parse_pattern':'TestEngineApp.exe (.+\+\w+)'}",,50000,,3.1.1+ba7485d,3.1.1+ba7485d,,,,TestEngine
+,FCT,Info,@Power_ON,common.dut_power_on,3000,,20000,,4900,5100,mV,,,PSU Module
+,FCT,Power_Rail,Relay_Connect_DMM_VIN1_SEL_SW_1,common.rpc_call,"{'func':'mixdevice.relay', 'args':['DMM_VIN1_SEL_SW']}",,,,,,,,,
+,FCT,Power_Rail,@VCHG_Voltage_Measurement,common.rpc_call,"{'func':'mixdevice.measureByDMM', 'args':['ch1','7000mv','VOLT_MEAS_MUX_SEL_DUT_VHCG', 0.2]}",,5000,,4900,5100,mV,,,DMM Module
+,FCT,Power_Rail,@QCC_1V8,common.rpc_call,"{'func':'mixdevice.measureByDMM', 'args':['ch1','7000mv','VOLT_MEAS_MUX_SEL_BUD_TP38_QCC_1V8', 0.2]}",,5000,,1700,1900,mV,,,DMM Module
+,FCT,Power_Rail,@Delay_5s,common.delay,5000,,20000,,--PASS--,--PASS--,,,,
+,FCT,Info,@Get_USB_Serial_Number,common.run_bmt_cmd,"{'cmd_key':'READ_USB_SN_2', 'parse_pattern':'USBSerialNumberString=.([\w\s]+).'}",[[scanned_sn]],30000,,,,,,Y,BMT
+,FCT,Info,@Get_SN_MES_INFO,common.check_uop,[[[scanned_sn]]],,15000,,,,,,Y,MES
+,FCT,Info,@Get_MAC_INFO,common.query_mac_by_sn,[[scanned_sn]],[[mes_info]],15000,,,,,,,MES
+,FCT,Info@MACCODE,MACCODE,common.get_value_by_key,[[mes_info]],[[mac_address]],3000,,,,,,,MES
+,FCT,Info@MAC_RAW,MAC_ADDRESS,common.get_value_by_key,[[mes_info]],[[mac_address_raw]],3000,,,,,,,MES
+,FCT,Info,Station_ID,common.station_id,[[station_id]],,5000,,,,,,,
+
+,FCT,BMT_DIAGS,@Start_BMT_Server,common.start_bmt_server,"{'sn':[[scanned_sn]] }",,20000,E,--PASS--,--PASS--,,,Y,BMT
+,FCT,BMT_DIAGS,@Check_Station_T001_Flag,common.bmt_client_send,"{'cmd_key':'CHECK_WRITE_STATION', 'parse_pattern':'(Station1Status=\w+)', 'Timeout':5000}",,20000,,Station1Status=Pass,Station1Status=Pass,,,,BMT
+,FCT,BMT_DIAGS,@Read_Diag_FW_Version,common.bmt_client_send,"{'cmd_key':'FW_VERSION', 'expect_keyword':'ProductInfo.FirmwareVersion.Status Version', 'parse_pattern':'Version=([\w\.\+-]+)', 'Timeout':5000}",,20000,,98.0.23-39+g3634a9b,98.0.23-39+g3634a9b,,,,BMT
+
+,FCT,MIC1_TEST,@MIC_Disable,common.bmt_client_send,"{'cmd_key':'MIC1_DISABLE', 'parse_pattern':'MicToRouteResp=(\w+)', 'Timeout':5000}",,60000,,None,None,,,,BMT
+,FCT,MIC1_TEST,@VPU_Disable,common.bmt_client_send,"{'cmd_key':'VPU_DISABLE', 'parse_pattern':'MicToRouteResp=(\w+)','Timeout':5000}",,60000,,None,None,,,,BMT
+,FCT,MIC1_TEST,@MIC_Enable,common.bmt_client_send,"{'cmd_key':'MIC1_ENABLE', 'parse_pattern':'MicToRouteResp=(\w+)','Timeout':5000}",,60000,,Mic0,Mic0,,,,BMT
+,FCT,MIC1_TEST,CONNECT_FIXTURE_AUDIO_RC_TO_BUD_TP27_QCC_MIC,common.rpc_call,"{'func':'mixdevice.relay', 'args':['FIXTURE_AUDIO_RC_TO_BUD_TP27_QCC_MIC_RELAY']}",,5000,,,,,,,
+,FCT,MIC1_TEST,CONNECT_BUD_P1_AMP_OUT_TO_AUDIO_MEAS,common.rpc_call,"{'func':'mixdevice.relay', 'args':['BUD_P1_AMP_OUT_TO_AUDIO_MEAS_RELAY']}",,5000,,,,,,,
+,FCT,MIC1_TEST,Delay_After_CONNECT_BUD_P1_AMP_OUT_TO_AUDIO,common.delay,1000,,20000,,,,,,,
+,FCT,MIC1_TEST,@MIC_Noise_Vrms,common.audio_record_and_analyse,"['pcm', 48000, 0, 0]",[[MIC1_Noise]],60000,,0,10,mV,,,PCM Module
+,FCT,MIC1_TEST,ENABLE_MIC_SPK_1000Hz,common.audio_enable,"[1000, 50]",,60000,,--PASS--,--PASS--,,,,DDS Module
+,FCT,MIC1_TEST,@Run_MIC_1000Hz_Test,common.audio_record_and_analyse,"['pcm', 48000, 0, 1]",[[MIC1_INFO]],60000,,--PASS--,--PASS--,,,,PCM Module
+,FCT,MIC1_TEST@frequency,@MIC_Frequency,common.get_value_by_key,[[MIC1_INFO]],,3000,,990,1010,Hz,,,
+,FCT,MIC1_TEST@rms,@MIC_Vrms,common.get_value_by_key,[[MIC1_INFO]],,3000,,50,150,mV,,,
+,FCT,MIC1_TEST@thdn,@MIC_THD+N,common.get_value_by_key,[[MIC1_INFO]],,3000,,0,1,%,,,
+,FCT,MIC1_TEST,@QCC_MIC_BIAS,common.rpc_call,"{'func':'mixdevice.measureByDMM', 'args':['ch1','7000mv','VOLT_MEAS_MUX_SEL_BUD_TP53_QCC_MIC_BIAS_SPEAK', 0.2]}",,5000,,1850,1970,mV,,,DMM Module
+,FCT,MIC1_TEST,DISABLE_MIC_SPK_1000Hz,common.audio_disable,,,6000,,--PASS--,--PASS--,,,,DDS Module
+,FCT,MIC1_TEST,DISCONNECT_FIXTURE_AUDIO_RC_TO_BUD_TP27_QCC_MIC,common.rpc_call,"{'func':'mixdevice.relay', 'args':['FIXTURE_AUDIO_RC_TO_BUD_TP27_QCC_MIC_RELAY', 'DISCONNECT']}",,5000,,,,,,,
+,FCT,MIC1_TEST,@DISABLE_MIC,common.bmt_client_send,"{'cmd_key':'MIC1_DISABLE', 'parse_pattern':'MicToRouteResp=(\w+)','Timeout':5000}",,60000,,None,None,,,,BMT
+,FCT,MIC1_TEST,Delay_After_DISABLE_MIC,common.delay,1000,,20000,,,,,,,
+
+,FCT,VPU_TEST,CONNECT_FIXTURE_PDM_TO_DUT_PDM_ENABLE,common.rpc_call,"{'func':'mixdevice.relay', 'args':['FIXTURE_PDM_TO_DUT_PDM_ENABLE']}",,5000,,,,,,,
+,FCT,VPU_TEST,@VPU_Enable,common.bmt_client_send,"{'cmd_key':'VPU_ENABLE', 'parse_pattern':'MicToRouteResp=(\w+)','Timeout':5000}",,60000,,Mic1,Mic1,,,,BMT
+,FCT,VPU_TEST,Delay_After_VPU_Enable,common.delay,1000,,20000,,,,,,,
+,FCT,VPU_TEST,@VPU_Noise_Vrms,common.audio_record_and_analyse,"['pcm', 48000, 0, 0]",[[VPU_Noise]],60000,,0,10,mV,,,PCM Module
+,FCT,VPU_TEST,ENABLE_VPU_SPK_1000Hz,common.rpc_call,"{'func':'mixdevice.pdm_simulate_enable', 'args':[31250, 1000, 0.3]}",,5000,,,,,,,PDM Module
+,FCT,VPU_TEST,Delay_After_ENABLE_VPU_SPK_1000Hz,common.delay,1000,,20000,,,,,,,
+,FCT,VPU_TEST,@Run_VPU_1000Hz_Test,common.audio_record_and_analyse,"['pcm', 48000, 0, 1]",[[VPU_INFO]],60000,,--PASS--,--PASS--,,,,PCM Module
+,FCT,VPU_TEST@frequency,@VPU_Frequency,common.get_value_by_key,[[VPU_INFO]],,3000,,990,1010,Hz,,,
+,FCT,VPU_TEST@rms,@VPU_Vrms,common.get_value_by_key,[[VPU_INFO]],,3000,,300,400,mV,,,
+,FCT,VPU_TEST@thdn,@VPU_THD+N,common.get_value_by_key,[[VPU_INFO]],,3000,,0,1,%,,,
+,FCT,VPU_TEST,DISABLE_VPU_SPK_1000Hz,common.rpc_call,"{'func':'mixdevice.pdm_simulate_disable'}",,5000,,,,,,,PDM Module
+,FCT,VPU_TEST,DISCONNECT_FIXTURE_PDM_TO_DUT_PDM_ENABLE,common.rpc_call,"{'func':'mixdevice.relay', 'args':['FIXTURE_PDM_TO_DUT_PDM_ENABLE', 'DISCONNECT']}",,5000,,,,,,,
+,FCT,VPU_TEST,DISCONNECT_BUD_P1_AMP_OUT_TO_AUDIO_MEAS,common.rpc_call,"{'func':'mixdevice.relay', 'args':['BUD_P1_AMP_OUT_TO_AUDIO_MEAS_RELAY', 'DISCONNECT']}",,5000,,,,,,,
+,FCT,VPU_TEST,@DISABLE_VPU,common.bmt_client_send,"{'cmd_key':'VPU_DISABLE', 'parse_pattern':'MicToRouteResp=(\w+)','Timeout':5000}",,60000,,None,None,,,,BMT
+
+,FCT,BMT_DIAGS,@Generate_DeviceName,common.generate_device_name,[[mac_address]],[[device_name]],20000,,,,,,,
+,FCT,BMT_DIAGS,@Write_BDAddress_DeviceName,common.run_bmt_cmd,"{'cmd_key':'WRITE_BD_ADDRESS', 'cmd_args':[[[mac_address]], [[device_name]]], 'parse_pattern':'keys (successful)', 'Timeout':12000}",,60000,,successful,successful,,,,BMT
+,FCT,BMT_DIAGS,@Delay_After_Write_BDAddress_DeviceName,common.delay,8000,,20000,,--PASS--,--PASS--,,,,
+,FCT,BMT_DIAGS,@WRITE_DEVICE_ID,common.run_bmt_cmd,"{'cmd_key':'WRITE_DEVICE_ID', 'parse_pattern':'flash_device_id (successful)...exiting', 'Timeout':12000}",,60000,,successful,successful,,,,BMT
+,FCT,BMT_DIAGS,@Delay_After_WRITE_DEVICE_ID,common.delay,3000,,20000,,--PASS--,--PASS--,,,,
+,FCT,BMT_DIAGS,@READ_DeviceName,common.run_bmt_cmd,"{'cmd_key':'READ_DEVICENAME', 'expect_keyword':'SPI_C2_R', 'parse_pattern':'DeviceName=.([\w\.]+).', 'Timeout':12000}",,60000,,,,,,,BMT
+
+,FCT,BMT_DIAGS,@Check_DeviceID_Key,common.bmt_client_send,"{'cmd_key':'CHECK_DEVICEID_KEY', 'cmd_args':[[[scanned_sn]]],  'expect_keyword':'Auth.ValidateDeviceIdentityKeypair.Processing', 'Timeout':20000}",,100000,,--PASS--,--PASS--,,,,BMT
+,FCT,BMT_DIAGS,@Read_BD_ADDRESS,common.bmt_client_send,"{'cmd_key':'GET_MAC_ADDRESS', 'parse_pattern':'MACAddress=0x(\w+)', 'compare_str': [[mac_address_raw]], 'Timeout':12000}",[[bd_address]],60000,,--PASS--,--PASS--,,,,BMT
+,FCT,BMT_DIAGS,@Write_ProductName,common.bmt_client_send,"{'cmd_key':'WRITE_PRODUCT_NAME',  'expect_keyword':'Manufacturing.OriginalProductName.Status OriginalProductName', 'parse_pattern':'OriginalProductName=([\w\s]+)\s', 'Timeout':6000}",,60000,,Bose Open Earbuds,Bose Open Earbuds,,,,BMT
+,FCT,BMT_DIAGS,@Write_HW_Version,common.bmt_client_send,"{'cmd_key':'SET_HW_REVISION', 'expect_keyword':'HWRevision=C2', 'Timeout':6000}",,60000,,--PASS--,--PASS--,,,,BMT
+,FCT,BMT_DIAGS,@Read_HW_Version,common.bmt_client_send,"{'cmd_key':'GET_HW_REVISION',  'expect_keyword':'HWRevision=', 'parse_pattern':'HWRevision=([\w\.]+)','Timeout':6000}",,60000,,C2,C2,,,,BMT
+,FCT,BMT_DIAGS,@Get_OTP_Type,common.bmt_client_send,"{'cmd_key':'GET_OTP_TYPE', 'expect_keyword':'CurrentOtpKeyType=', 'parse_pattern':'CurrentOtpKeyType=(\w+)', 'Timeout':6000}",[[otp_type]],60000,,otp_none;otp_prod;otp_deve,,,,,BMT
+
+,FCT,CHARGER_TEST,@CHARGER_ENABLE,common.bmt_client_send,"{'cmd_key':'CHARGER_ENABLE', 'parse_pattern':'Manufacturing.ChargerEnabled.Status (Enabled=\w+)', 'Timeout':6000}",,60000,,Enabled=True,Enabled=True,,,,BMT
+,FCT,CHARGER_TEST,@Measurement_Vcharge_I_3V8,common.measure_vcharge,"[3800, 500]",,60000,,-90,-70,mA,,,PSU Module
+,FCT,CHARGER_TEST,@Measurement_Vcharge_I_4V3,common.measure_vcharge,"[4300, 1000]",,60000,,-5,5,mA,,,PSU Module
+,FCT,CHARGER_TEST,Battery_Enable_3V8,common.rpc_call,"{'func':'mixdevice.batteryEnable', 'args':[3800, 500]}",,,,--PASS--,--PASS--,,,,PSU Module
+,FCT,CHARGER_TEST,@CHARGER_DISABLE,common.bmt_client_send,"{'cmd_key':'CHARGER_DISABLE', 'parse_pattern':'Manufacturing.ChargerEnabled.Status (Enabled=\w+)', 'Timeout':5000}",,60000,,Enabled=False,Enabled=False,,,,BMT
+,FCT,CHARGER_TEST,Delay_After_CHARGER_DISABLE,common.delay,5000,,20000,,--PASS--,--PASS--,,,,
+,FCT,CHARGER_TEST,@Disable_Charge_Current,common.rpc_call,"{'func':'mixdevice.measureCurrentByOdin', 'args':['battery', '500ma']}",,,,-5,5,mA,,,PSU Module
+
+,FCT,GPIO_TEST,@QCC_SYS_CTRL_H,common.qcc_sys_ctrl_test,"{'action':'HIGH', 'cmd_key':'BUTTON', 'expect_keyword':'Debug.GPIO.Status', 'parse_pattern':' Level=(\w+)', 'Timeout':5000}",,20000,,High,High,,,,BMT
+,FCT,GPIO_TEST,@QCC_SYS_CTRL_L,common.qcc_sys_ctrl_test,"{'action':'LOW', 'cmd_key':'BUTTON', 'expect_keyword':'Debug.GPIO.Status', 'parse_pattern':' Level=(\w+)', 'Timeout':5000}",,20000,,Low,Low,,,,BMT
+
+,FCT,BMT_DIAGS,@Get_Battery_Voltage,common.bmt_client_send,"{'cmd_key':'READ_BATTERY_VOLT',  'expect_keyword':'BatteryDebug.Voltage.Status', 'parse_pattern':'Voltage=(\w+)', 'if_need_tonumber': 1,  'Timeout':5000}",,20000,,3700,3900,mV,,,BMT
+,FCT,BMT_DIAGS,@Get_Battery_Temperature,common.bmt_client_send,"{'cmd_key':'GET_BATTERY_TEMPERATURE',  'expect_keyword':'BatteryDebug.Temperature.Status', 'parse_pattern':'Temperature=(\w+)', 'if_need_tonumber': 1,  'Timeout':5000}",,20000,,15,35,C,,,BMT
+,FCT,BMT_DIAGS,@Check_Buds_L/R_Config,common.bmt_client_send,"{'cmd_key':'COMPONENT_ID', 'expect_keyword':'ProductInfo.ComponentID.Status', 'parse_pattern':'ComponentID=COMPONENT_(\w+ MacAddress=0x\w{6})\w+', 'Timeout':5000}",,20000,,RIGHTBUD MacAddress=0x68F21F,RIGHTBUD MacAddress=0x68F21F,,,,BMT
+,FCT,BMT_DIAGS,@Enable_Single_BUDS_Mode,common.bmt_client_send,"{'cmd_key':'SINGLE_BUDS_MODE',  'parse_pattern':'Debug.SingleBudActivation.Status enabled=(\d)', 'Timeout':5000}",,20000,,1,1,,,,BMT
+,FCT,BMT_DIAGS,Delay_Enable_Single_BUDS_Mode,common.delay,1000,,20000,,,,,,,
+
+,FCT,CASE_DETECT_L,Power_off,common.rpc_call,"{'func':'mixdevice.reset'}",,20000,R,,,,,,
+,FCT,CASE_DETECT_L,Delay_After_Power_off,common.delay,500,,20000,,,,,,,
+,FCT,CASE_DETECT_L,@Power_Cycle,common.dut_power_on,10000,,20000,,4900,5100,,,,PSU Module
+,FCT,CASE_DETECT_L,@MFG_MV_GET_Init,common.bmt_client_send,"{'cmd_key':'MFG_MV_GET_USB', 'cmd_args':[[[scanned_sn]]], 'parse_pattern':'Variable is: (\d+)', 'Timeout':10000}",,60000,,0,0,,,,BMT
+,FCT,CASE_DETECT_L,@MFG_MV_SET_99,common.bmt_client_send,"{'cmd_key':'MFG_MV_SET_99_USB', 'cmd_args':[[[scanned_sn]]], 'parse_pattern':'Variable to (\d+)', 'Timeout':10000}",,60000,,99,99,,,,BMT
+,FCT,CASE_DETECT_L,@MFG_MV_GET_99,common.bmt_client_send,"{'cmd_key':'MFG_MV_GET_USB', 'cmd_args':[[[scanned_sn]]], 'parse_pattern':'Variable is: (\d+)', 'Timeout':10000}",,60000,,99,99,,,,BMT
+,FCT,CASE_DETECT_L,@QCC_SYS_CTRL_Pulse_Width,common.detect_seq,,,60000,,40,60,mS,,,
+,FCT,CASE_DETECT_L@case_detect,@CASE_DETECT_L_Pulse_Width,common.get_value_by_key,,,3000,,320,520,mS,,,
+,FCT,CASE_DETECT_L,@QCC_RST_MFG_MV_GET_0,common.bmt_client_send,"{'cmd_key':'MFG_MV_GET_USB', 'cmd_args':[[[scanned_sn]]], 'parse_pattern':'Variable is: (\d+)', 'Timeout':10000}",,60000,,0,0,,,,BMT
+
+,FCT,SHIP_MODE,@Measurement__Vcharge_I_3V8,common.rpc_call,"{'func':'mixdevice.measureCurrentByOdin', 'args':['battery', '500ma']}",,,,-90,-70,mA,,,PSU Module
+,FCT,SHIP_MODE,@Write_Station_Flag,common.write_station_flag,"{'test_result':[[[result]]], 'cmd_args':[[[scanned_sn]]], 'parse_pattern':'(Station2Status=\w+)', 'Timeout':5000}",,60000,,--PASS--,--PASS--,,,,BMT
+,FCT,SHIP_MODE,@Check_Station_Flag,common.write_station_flag,"{'test_result':[[[result]]], 'cmd_key':'CHECK_WRITE_STATION_FLAG', 'cmd_args':[[[scanned_sn]]], 'parse_pattern':'(Station2Status=\w+)', 'Timeout':5000}",,60000,,--PASS--,--PASS--,,,,BMT
+,FCT,SHIP_MODE,@CLOSE_BMT_Server,common.close_bmt_server,,,20000,E,--PASS--,--PASS--,,,,BMT
+,FCT,SHIP_MODE,Relay_Connect_DMM_VIN1_SEL_SW_2,common.rpc_call,"{'func':'mixdevice.relay', 'args':['DMM_VIN1_SEL_SW']}",,,,,,,,,
+,FCT,SHIP_MODE,@QCC_BAT_STB_L,common.rpc_call,"{'func':'mixdevice.measureByDMM', 'args':['ch1','7000mv','VOLT_MEAS_MUX_SEL_BUD_TP34_QCC_BAT_STB', 0.2]}",,5000,,-10,10,mV,,,DMM Module
+,FCT,SHIP_MODE,@GET_CORE_DUMP,common.run_bmt_cmd,"{'cmd_key':'Get_Core_Dump', 'cmd_args':[[[scanned_sn]]], 'expect_keyword': 'Debug.TAP.Result TapCommandStatus=OK','parse_pattern':'crashlog info->(status = \d)', 'Timeout':10000}",,600000,,--PASS--,--PASS--,,,,BMT
+
+,FCT,SHIP_MODE,@Set_Ship_Mode,common.run_bmt_cmd,"{'cmd_key':'SET_SHIP_MODE', 'cmd_args':[[[scanned_sn]]], 'parse_pattern':'(Ok)', 'Timeout':5000}",,20000,,Ok,Ok,,,,BMT
+,FCT,SHIP_MODE,@QCC_BAT_STB_H,common.measure_ship_mode,"{'func':'mixdevice.measureByDMM', 'args':['ch1','7000mv','VOLT_MEAS_MUX_SEL_BUD_TP34_QCC_BAT_STB', 0.2]}",,20000,,1700,1900,mV,,,DMM Module
+,FCT,SHIP_MODE,PSU_Charge_Disable,common.rpc_call,"{'func':'mixdevice.chargeDisable'}",,,,,,,,,
+,FCT,SHIP_MODE,Relay_Disconnect_PSU_VCHG_TO_DUT,common.rpc_call,"{'func':'mixdevice.relay', 'args':['PSU_VCHG_TO_DUT', 'DISCONNECT']}",,,,,,,,,
+,FCT,SHIP_MODE,Relay_Disconnect_USB_SEL_SW,common.rpc_call,"{'func':'mixdevice.relay', 'args':['USB_SEL_SW', 'DISCONNECT']}",,,,,,,,,
+,FCT,SHIP_MODE,@Delay_1S,common.delay,1000,,200000,,,,,,,
+,FCT,SHIP_MODE,@ShipMode_Current,common.measure_shipmode_current,,,,,0,1,uA,,,PSU Module
+,FCT,SHIP_MODE,@Fixture_Power_off,common.fixture_power_off,0,,20000,,--PASS--,--PASS--,,,,

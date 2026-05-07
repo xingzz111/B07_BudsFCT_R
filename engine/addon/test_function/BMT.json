@@ -34,7 +34,7 @@
 
 
     "GET_TESTENGINE_VERSION": "TestEngineApp.exe -h",
-    "WRITE_BD_ADDRESS": "BoseManufacturingTool mfg_data --chip_name QCC519X --port {} --transport usbdbg --bs_path \"C:\\Program Files (x86)\\QTIL\\BlueSuite 4.0.7\" --db_file \"D:\\manufacturing\\hydracore_config.sdb\" --set \"bt2:BD_ADDRESS=[{}]\" --set \"app5:DeviceName=[{}]\" --debug --skip_close",
+    "WRITE_BD_ADDRESS": "BoseManufacturingTool mfg_data --chip_name QCC519X --port {} --transport usbdbg --bs_path \"C:\\Program Files (x86)\\QTIL\\BlueSuite 4.0.7\" --db_file \"D:\\manufacturing\\hydracore_config.sdb\" --set \"bt2:BD_ADDRESS=[{}]\" --set \"app5:DeviceName=[{}]\" --debug",
     "READ_BD_ADDRESS": "BoseManufacturingTool mfg_data --chip_name QCC519X --port {} --transport usbdbg --bs_path \"C:\\Program Files (x86)\\QTIL\\BlueSuite 4.0.7\" --db_file=\"D:\\manufacturing\\hydracore_config.sdb\" --get \"bt2:BD_ADDRESS\" --debug --skip_close",
     "READ_USBPRODUCTSTRING": "BoseManufacturingTool mfg_data --chip_name QCC519X --port {} --transport usbdbg --bs_path \"C:\\Program Files (x86)\\QTIL\\BlueSuite 4.0.7\" --db_file=\"D:\\manufacturing\\hydracore_config.sdb\" --get \"app3:USBProductString\" --debug --skip_close",
     "READ_DEVICENAME": "BoseManufacturingTool mfg_data --chip_name QCC519X --port {} --transport usbdbg --bs_path \"C:\\Program Files (x86)\\QTIL\\BlueSuite 4.0.7\" --db_file=\"D:\\manufacturing\\hydracore_config.sdb\" --get \"app5:DeviceName\" --debug --skip_close",

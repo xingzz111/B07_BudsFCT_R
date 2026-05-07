@@ -23,9 +23,7 @@ class SlotManager(object):
         with self._lock:
             for i in range(len(self._slot_test_status)):
                 if i != site and self._slot_test_status[i] == "TESTING":
-                    print(f"False>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>site{site}:{self._slot_test_status}")
                     return False
-            print(f"True>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>site{site}:{self._slot_test_status}")
             return True
 
 

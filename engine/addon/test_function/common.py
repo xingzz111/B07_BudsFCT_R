@@ -42,7 +42,7 @@ class common(object):
         "free_mem", "calculate_a_weight", "save_raw_wav", "audio_record_and_analyse", "check_fw_config", "start_bmt_server",
         "bmt_client_send", "close_bmt_server", "bmt_client_mutil_send", "parse_client_resp", "get_test_result", "query_mac_by_sn_tmp",
         "audio_enable", "audio_disable", "pio_enable", "pio_measure_stop", "measure_shipmode_current", 'write_station_flag',
-        "measure_volt_uvp_ovp", "measure_vcharge", "qcc_sys_ctrl_test", "set_ship_mode", "fixture_power_off"
+        "measure_volt_uvp_ovp", "measure_vcharge", "qcc_sys_ctrl_test", "measure_ship_mode", "fixture_power_off", "measure_voltage"
     ]
 
     def __init__(self, xobjects):
@@ -135,6 +135,9 @@ class common(object):
                 if not self._if_passthrough_stop_server:
                     self._kill_daemon(self._sn, False)
             self._get_server_info()
+            for path in ("D:\\BMT\\server_pass.txt", "D:\\BMT\\server_fail.txt"):
+                if os.path.exists(path):
+                    os.remove(path)
         except:
             pass
         self.rp2_device.rpc_call("mixdevice.reset", None)
@@ -161,7 +164,11 @@ class common(object):
     @test_item_logger
     def measure_shipmode_current(self, *args, **kwargs):
         final_unit = kwargs.get("units")
-        result = self.rp2_device.rpc_call("mixdevice.measureCurrentByOdin", ['battery', '1ua'])
+        result_list = []
+        for i in range(3):
+            result = self.rp2_device.rpc_call("mixdevice.measureCurrentByOdin", ['battery', '1ua'])
+            result_list.append(result)
+        result = sum(result_list) / len(result_list)
         result = round(Unit.convert_unit(result, "mA", final_unit), 3)
         return abs(result)
 
@@ -204,23 +211,42 @@ class common(object):
         return result
 
     @test_item_logger
-    def set_ship_mode(self, *args, **kwargs):
-        # self.rp2_device.rpc_call("mixdevice.relay", ["VOLT_MEAS_MUX_SEL_BUD_TP34_QCC_BAT_STB"])
-        # time.sleep(0.5)
-        result = self._run_bmt_cmd(*args, **kwargs)
-        time.sleep(5)
-        # if result == "Result":
-        #     self.log(f"log_in@Start_Measure: {str(datetime.now())}")
-        #     start_time = time.time()
-        #     while True:
-        #         volt = self.rp2_device.rpc_call("mixdevice.measureByDMM", ["ch1", "7000mv", None, 0])
-        #         if volt > 1000:
-        #             break
-        #         time_now = time.time()
-        #         if time_now - start_time > 5:
-        #             break
-        #     self.log(f"log_in@Finish_Measure: {str(datetime.now())}")
+    def measure_ship_mode(self, *args, **kwargs):
+        self.rp2_device.rpc_call("mixdevice.relay", ["VOLT_MEAS_MUX_SEL_BUD_TP34_QCC_BAT_STB"])
+        time.sleep(0.5)
+        # result = self._run_bmt_cmd(*args, **kwargs)
+        # time.sleep(5)
+        self.log(f"log_in@Start_Measure: {str(datetime.now())}")
+        start_time = time.time()
+        volt = 0
+        while True:
+            volt = self.rp2_device.rpc_call("mixdevice.measureByDMM", ["ch1", "7000mv", None, 0])
+            if volt > 1700:
+                time.sleep(0.2)
+                volt = self.rp2_device.rpc_call("mixdevice.measureByDMM", ["ch1", "7000mv", None, 0])
+                break
+            time.sleep(1)
+            time_now = time.time()
+            if time_now - start_time > 15:
+                break
+        self.log(f"log_in@Finish_Measure: {str(datetime.now())}")
+        return volt
+
+    @test_item_logger
+    def measure_voltage(self, *args, **kwargs):
+        gain_list = [0.694, 0.556, 0.675, 0.7]
+        gain_index = int(self.site)
+        _args = args[0]
+        function_name = _args.get("func", None)
+        if not function_name:
+            return ReturnDef.MISS_PARAMETER
+        args_list = _args.get("args", None)
+        result = self.rp2_device.rpc_call(function_name, args_list)
+        result = round(result * gain_list[gain_index], 2)
+        self.log(f"log_in@mixdevice.measureByDMM('ch1', '7000mv', 'VOLT_MEAS_MUX_SEL_BUD_TP34_QCC_BAT_STB', 0.2)")
+        self.log(f"log_out@{result}")
         return result
+
 
     @test_item_logger
     def detect_seq(self, *args, **kwargs):
@@ -313,23 +339,29 @@ class common(object):
     @test_item_logger
     def audio_record_and_analyse(self, *args, **kwargs):
         record_type, sample_rate, raw_data_flag, need_cal = args
+        log_key = kwargs.get("SubSubTestName")
         result = "--FAIL--"
         raw_data_flag = False if not int(raw_data_flag) else True
         for i in range(1):
             if record_type == "pcm":
-                result = self.rp2_device.rpc_call(f"mixdevice.audio_record", [sample_rate, raw_data_flag])
-                print(result)
+                result = self.rp2_device.rpc_call(f"mixdevice.audio_record", [sample_rate, raw_data_flag])[0]
+                # print(result)
                 if need_cal:
                     cal_resp = self.rp2_device.rpc_call("mixdevice.read_calibration_cell", ["audio_measure"])
                     result['rms'] = result['rms'] * cal_resp['gain'] + cal_resp['offset']
-                    print(result)
+                    # print(result)
             else:
                 result = self.rp2_device.rpc_call(f"mixdevice.pdm_record", [])
             if not result:
                 continue
             time.sleep(1)
-            frequency = result.get("frequency", 0)
-            rms = float(abs(result["rms"])) * 1000
+
+        frequency = result.get("frequency", 0)
+        rms = float(abs(result["rms"])) * 1000
+        if "Noise_Vrms" in log_key:
+            result = rms
+        self.log(f"log_in@mixdevice.audio_record({sample_rate}, {raw_data_flag})")
+        self.log(f"log_out@{result}")
         return result
 
     @test_item_logger
@@ -568,7 +600,7 @@ class common(object):
             self.log(f"Pre handle BMT cmd Fail: {bmt_cmd}")
             return "--FAIL--Pre_Handle_CMD_Fail"
 
-        path = "D:\\BMT\\BoseManufacturingTool-5.3.0-1383+a170927\\BoseManufacturingTool\\BoseManufacturingTool.exe"
+        path = "D:\\BMT\\BoseManufacturingTool-5.3.0-1384+a170927\\BoseManufacturingTool\\BoseManufacturingTool.exe"
         if "BoseManufacturingTool" in bmt_cmd:
             bmt_cmd = bmt_cmd.replace("BoseManufacturingTool", path)
 
@@ -593,9 +625,9 @@ class common(object):
 
         if return_code != 0 and return_code != 12:
             return "--FAIL--CMD Run Fail"
-        # else:
-        #     if "BlueSuite" in bmt_cmd and "BoseManufacturingTool" in bmt_cmd:
-        #         time.sleep(1)
+        else:
+            if "BlueSuite" in bmt_cmd and "BoseManufacturingTool" in bmt_cmd:
+                time.sleep(0.5)
 
         if expect_keyword:
             if expect_keyword not in resp:
@@ -651,7 +683,7 @@ class common(object):
 
         port = self._port if not if_ble else self._ble_port
         dev = self._sn
-        client_path = "D:\\BMT\\BoseManufacturingTool-5.3.0-1383+a170927\\BoseManufacturingTool\\bmt_client.exe"
+        client_path = "D:\\BMT\\BoseManufacturingTool-5.3.0-1384+a170927\\BoseManufacturingTool\\bmt_client.exe"
         bmt_cmd = f"{client_path} --host 127.0.0.1 --port {port} --dev {dev} "
 
         for item in cmd_list:
@@ -745,7 +777,7 @@ class common(object):
 
         port = self._port if not if_ble else self._ble_port
         dev = self._sn
-        client_path = "D:\\BMT\\BoseManufacturingTool-5.3.0-1383+a170927\\BoseManufacturingTool\\bmt_client.exe"
+        client_path = "D:\\BMT\\BoseManufacturingTool-5.3.0-1384+a170927\\BoseManufacturingTool\\bmt_client.exe"
         bmt_cmd = f"{client_path} --host 127.0.0.1 --port {port} --dev {dev} --cmd {bmt_cmd_key}"
 
         if if_log_print:
@@ -884,8 +916,8 @@ class common(object):
         result = "--FAIL--"
         content = " "
 
-        client_path = "D:\\BMT\\BoseManufacturingTool-5.3.0-1383+a170927\\BoseManufacturingTool\\bmt_client.exe"
-        path = "D:\\BMT\\BoseManufacturingTool-5.3.0-1383+a170927\\BoseManufacturingTool\\BoseManufacturingTool.exe"
+        client_path = "D:\\BMT\\BoseManufacturingTool-5.3.0-1384+a170927\\BoseManufacturingTool\\bmt_client.exe"
+        path = "D:\\BMT\\BoseManufacturingTool-5.3.0-1384+a170927\\BoseManufacturingTool\\BoseManufacturingTool.exe"
         server_pass_path = "D:\\BMT\\server_pass.txt"
         server_fail_path = "D:\\BMT\\server_fail.txt"
         if os.path.exists(server_pass_path):
@@ -986,7 +1018,7 @@ class common(object):
         return result
 
     def _kill_daemon(self, sn, log_print = True):
-        client_path = "D:\\BMT\\BoseManufacturingTool-5.3.0-1383+a170927\\BoseManufacturingTool\\bmt_client.exe"
+        client_path = "D:\\BMT\\BoseManufacturingTool-5.3.0-1384+a170927\\BoseManufacturingTool\\bmt_client.exe"
         kill_cmd = f"{client_path} --host 127.0.0.1 --port {self._port} --dev {sn} --cmd kill_daemon"
 
         if log_print:
@@ -1152,22 +1184,22 @@ class common(object):
         self.log(f"log_out@MES Response: [{info}]")
         mac_code_raw = re.findall(r"MACCODE=(\w+)", info)[0]
         info_dict["MAC_RAW"] = mac_code_raw.strip()
-        license_key_raw = re.findall(r"LICENSE_KEY=(\w+)", info)[0]
+        # license_key_raw = re.findall(r"LICENSE_KEY=(\w+)", info)[0]
         MACCODE = ""
-        LICENSE_KEY = ""
+        # LICENSE_KEY = ""
 
         for i in range(0, int(len(mac_code_raw)), 2):
             self._bd_address += ":" + mac_code_raw[i:i+2]
         for i in range(int(len(mac_code_raw)), 0, -2):
             MACCODE += " " + mac_code_raw[i - 2:i]
-        for i in range(0, int(len(license_key_raw)), +4):
-            tmp_str = (license_key_raw[i:i + 4])
-            LICENSE_KEY += tmp_str[2:4] + " " + tmp_str[:2] + " "
+        # for i in range(0, int(len(license_key_raw)), +4):
+        #     tmp_str = (license_key_raw[i:i + 4])
+        #     LICENSE_KEY += tmp_str[2:4] + " " + tmp_str[:2] + " "
 
         self._bd_address = self._bd_address.strip(":")
         info_dict["MACCODE"] = MACCODE.strip()
-        info_dict["LICENSE_KEY"] = LICENSE_KEY.strip()
-        info_dict["APTX_LICENSE_KEY"] = re.findall(r"APTX_LICENSE_KEY=([\w\s]+)", info)[0]
+        # info_dict["LICENSE_KEY"] = LICENSE_KEY.strip()
+        # info_dict["APTX_LICENSE_KEY"] = re.findall(r"APTX_LICENSE_KEY=([\w\s]+)", info)[0]
         return info_dict
 
     @test_item_logger
@@ -1239,7 +1271,7 @@ class common(object):
         buds_type = re.search("FCT_(\w)_", station_id).group(1)
         bd_address = str(args[0]).strip("\'")
         bd_list = bd_address.split(" ")
-        device_name = "SPI_C1_" + buds_type + "_" +bd_list[1] + bd_list[0]
+        device_name = "SPI_C2_" + buds_type + "_" +bd_list[1] + bd_list[0]
         self.log(f"log_in@DeviceName string is ‘{device_name}’")
         device_name_ascii = ""
         for item in device_name.encode("utf-8"):
@@ -1262,16 +1294,27 @@ class common(object):
 
     @test_item_logger
     def get_value_by_key(self, *args, **kwargs):
+        log_dict = {"@MIC_Noise_Vrms": "ANALYSE_MIC_Noise", "@MIC_Frequency": "Run_MIC_1000Hz_Test",
+                    "@MIC_Vrms": "Run_MIC_1000Hz_Test", "@MIC_THD+N": "Run_MIC_1000Hz_Test",
+                    "@VPU_Noise_Vrms": "ANALYSE_VPU_Noise", "@VPU_Frequency": "Run_VPU_1000Hz_Test",
+                    "@VPU_Vrms": "Run_VPU_1000Hz_Test", "@VPU_THD+N": "Run_VPU_1000Hz_Test", 
+                    "@CASE_DETECT_L_Pulse_Width": "QCC_SYS_CTRL_Pulse_Width" 
+                    }
+        log_key = kwargs.get("SubSubTestName")
         key = kwargs.get("SubTestName")
+        from_item = log_dict.get(log_key, None)
+        if from_item:
+            self.log(f"log_in@Get value from item [{from_item}]")
         # if "@" in key:
         #     key = key.replace("@", "")
         key = key.split("@")[1]
-        self.log(f"key: {key}")
+        # self.log(f"key: {key}")
         if len(args) == 0:
+            self.log(f"log_out@{self._global_dict[key]}")
             return self._global_dict[key]
-        self.log(f"args: {args}")
+        # self.log(f"args: {args}")
         input_table = ast.literal_eval(args[0].strip("'"))
-        self.log(f"arg_list: {input_table}")
+        # self.log(f"arg_list: {input_table}")
         # input_table = ast.literal_eval(arg_list[1])
         if key == "dBV":
             dbv = round(20 * np.log10(float(input_table["rms"])), 4)
@@ -1279,12 +1322,18 @@ class common(object):
             self.log(f"log_out@{dbv} dBV")
             return dbv
         if key == "rms":
-            rms = float(abs(input_table["rms"])) * 1000
+            rms = input_table["rms"]
+            self.log(f"log_out@{rms}")
+            rms = float(abs(rms)) * 1000
             return rms
         if key == "thdn":
-            thdn = round(10 ** (float(input_table["thdn"])/20) * 100, 4)
+            thdn = input_table["thdn"]
+            self.log(f"log_out@{thdn}")
+            thdn = round(10 ** (float(thdn)/20) * 100, 4)
             return thdn
-        return input_table[key]
+        result = input_table[key]
+        self.log(f"log_out@{result}")
+        return result
 
 
     @test_item_logger

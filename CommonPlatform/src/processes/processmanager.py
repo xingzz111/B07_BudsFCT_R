@@ -183,8 +183,8 @@ class ProcessManage(Thread):
             env["PYTHONPATH"] = PROJECT_PATH
             self.logger.info("start_process: {}".format(cmd))
             if PLATFORM == "Windows":
-                # process = subprocess.Popen(cmd, cwd=cwd, env=env, creationflags=subprocess.CREATE_NO_WINDOW)
-                process = subprocess.Popen(cmd, cwd=cwd, env=env)
+                process = subprocess.Popen(cmd, cwd=cwd, env=env, creationflags=subprocess.CREATE_NO_WINDOW)
+                # process = subprocess.Popen(cmd, cwd=cwd, env=env)
             else:
                 process = subprocess.Popen(cmd, cwd=cwd, env=env)
             self.processes[process_name] = process
