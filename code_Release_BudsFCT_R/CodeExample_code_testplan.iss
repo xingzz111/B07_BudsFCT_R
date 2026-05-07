@@ -46,12 +46,6 @@ Type: filesandordirs; Name: "{%USERPROFILE}\testerconfig"
 Type: filesandordirs; Name: "D:\Overlay"
 Type: filesandordirs; Name: "D:\BMT"
 Type: filesandordirs; Name: "D:\Calibration_Tool"
-; 不要删除整个系统 Python 的 site-packages（会导致 pip 不可用）
-; 只清理本项目会覆盖的包目录/元数据，确保“覆盖而非合并”
-Type: filesandordirs; Name: "C:\Python\Lib\site-packages\zmq"
-Type: filesandordirs; Name: "C:\Python\Lib\site-packages\winpty"
-Type: filesandordirs; Name: "C:\Python\Lib\site-packages\pyzmq-*.dist-info"
-Type: filesandordirs; Name: "C:\Python\Lib\site-packages\pywinpty-*.dist-info"
 
 [Code]
 function DeleteExistingShortcut(): Boolean;

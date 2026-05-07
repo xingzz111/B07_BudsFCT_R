@@ -141,12 +141,12 @@ try {
   Copy-Item (Join-Path $engine "*") ".\dist\engine\" -Recurse -Force
   Copy-Item (Join-Path $engine "profile\*.csv") ".\dist\profile\" -Force -ErrorAction SilentlyContinue
 
-  & ".\src\signer\signer_win.exe" -d ".\dist"
-  if (-not $?) { throw "signer_win.exe failed signing dist (exit=$LASTEXITCODE)" }
-
   Move-Item ".\dist" ".\OSENSTester"
   Copy-Item ".\killport.bat" ".\OSENSTester\" -Force
   Copy-Item ".\__init__.py" ".\OSENSTester\" -Force
+
+  & ".\src\signer\signer_win.exe" -d ".\OSENSTester"
+  if (-not $?) { throw "signer_win.exe failed signing OSENSTester (exit=$LASTEXITCODE)" }
 }
 finally {
   Pop-Location
