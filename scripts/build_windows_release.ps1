@@ -123,8 +123,14 @@ try {
   Copy-Item (Join-Path $engine "*") ".\dist\engine\" -Recurse -Force
   Copy-Item (Join-Path $engine "profile\*.csv") ".\dist\profile\" -Force -ErrorAction SilentlyContinue
 
+  # Keep R packages clean: remove L legacy CSVs from packaged engine profiles before signing
+  $distEngineProfiles = ".\dist\engine\profile"
+  if (Test-Path -LiteralPath $distEngineProfiles) {
+    Get-ChildItem -Path $distEngineProfiles -Recurse -Filter "BUDS_FCT_L__*.csv" -ErrorAction SilentlyContinue | Remove-Item -Force -ErrorAction SilentlyContinue
+  }
+
   & ".\src\signer\signer_win.exe" -d ".\dist"
-  if ($LASTEXITCODE -ne 0) { throw "signer_win.exe failed signing dist (exit=$LASTEXITCODE)" }
+  if (-not $?) { throw "signer_win.exe failed signing dist (exit=$LASTEXITCODE)" }
 
   Move-Item ".\dist" ".\OSENSTester"
   Copy-Item ".\killport.bat" ".\OSENSTester\" -Force
@@ -170,7 +176,7 @@ try {
   $signer = Join-Path $common "src\\signer\\signer_win.exe"
   if (Test-Path -LiteralPath $signer) {
     & $signer -d ".\\Output"
-    if ($LASTEXITCODE -ne 0) { throw "signer_win.exe failed signing installer Output (exit=$LASTEXITCODE)" }
+    if (-not $?) { throw "signer_win.exe failed signing installer Output (exit=$LASTEXITCODE)" }
   }
   else {
     Write-Warning "signer_win.exe not found at $signer (skipping installer signing)"
