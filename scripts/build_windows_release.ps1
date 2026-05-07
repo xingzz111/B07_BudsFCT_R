@@ -142,7 +142,9 @@ try {
 
   Move-Item ".\dist" ".\OSENSTester"
   Copy-Item ".\killport.bat" ".\OSENSTester\" -Force
-  Copy-Item ".\__init__.py" ".\OSENSTester\" -Force
+  if (Test-Path -LiteralPath ".\__init__.py") {
+    Copy-Item ".\__init__.py" ".\OSENSTester\" -Force
+  }
 
   & ".\src\signer\signer_win.exe" -d ".\OSENSTester"
   if (-not $?) { throw "signer_win.exe failed signing OSENSTester (exit=$LASTEXITCODE)" }

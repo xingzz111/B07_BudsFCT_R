@@ -62,7 +62,7 @@ if exist .\build rmdir /Q /S .\build
 move .\dist .\OSENSTester
 
 copy /Y .\killport.bat .\OSENSTester\
-copy /Y .\__init__.py .\OSENSTester\
+if exist .\__init__.py copy /Y .\__init__.py .\OSENSTester\
 
 .\src\signer\signer_win.exe -d .\OSENSTester
 if errorlevel 1 (
