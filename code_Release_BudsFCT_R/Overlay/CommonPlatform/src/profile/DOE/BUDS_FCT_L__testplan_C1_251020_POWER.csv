@@ -1,0 +1,20 @@
+Disable,Group,SubTestName,SubSubTestName,Function,Input,Output,Timeout,Policy,LowerLimit,UpperLimit,Units,Condition,StopOnFail,Notes
+,FCT,Info,@Get_BMT_Version,common.run_bmt_cmd,"{'cmd_key':'GET_VERSION', 'parse_pattern':'BMT: (.*),'}",,50000,,5.1.0-1286+e381751,5.1.0-1286+e381751,,,,BMT
+,FCT,Info,@Get_TestEngine_Version,common.run_bmt_cmd,"{'cmd_key':'GET_TESTENGINE_VERSION', 'parse_pattern':'TestEngineApp.exe (.+\+\w+)'}",,50000,,3.1.1+ba7485d,3.1.1+ba7485d,,,,TestEngine
+,FCT,Info,@Power_ON,common.dut_power_on,3000,,20000,,4900,5100,mV,,,PSU Module
+,FCT,Power_Rail,Relay_Connect_DMM_VIN1_SEL_SW_1,common.rpc_call,"{'func':'mixdevice.relay', 'args':['DMM_VIN1_SEL_SW']}",,,,,,,,,
+,FCT,Power_Rail,@VCHG_Voltage_Measurement,common.rpc_call,"{'func':'mixdevice.measureByDMM', 'args':['ch1','7000mv','VOLT_MEAS_MUX_SEL_DUT_VHCG', 0.2]}",,5000,,4900,5100,mV,,,DMM Module
+,FCT,Power_Rail,@QCC_1V8,common.rpc_call,"{'func':'mixdevice.measureByDMM', 'args':['ch1','7000mv','VOLT_MEAS_MUX_SEL_BUD_TP38_QCC_1V8', 0.2]}",,5000,,1700,1900,mV,,,DMM Module
+
+,FCT,MIC1_TEST,111,common.rpc_call,"{'func':'mixdevice.relay', 'args':['VOLT_MEAS_MUX_SEL_BUD_TP53_QCC_MIC_BIAS_SPEAK']}",,5000,,,,,,,
+,FCT,MIC1_TEST,CONNECT_BUD_P1_AMP_OUT_TO_AUDIO_MEAS,common.rpc_call,"{'func':'mixdevice.relay', 'args':['VOLT_MEAS_DISCHARGE']}",,5000,,,,,,,
+,FCT,MIC1_TEST,Delay_After_CONNECT_BUD_P1_AMP_OUT_TO_AUDIO,common.delay,1000,,20000,,,,,,,
+,FCT,VPU_TEST,DISCONNECT_FIXTURE_PDM_TO_DUT_PDM_ENABLE,common.rpc_call,"{'func':'mixdevice.relay', 'args':['VOLT_MEAS_DISCHARGE', 'DISCONNECT']}",,5000,,,,,,,
+
+
+
+,FCT,Power_Rail,@QCC_MIC_BIAS_Volt,common.rpc_call,"{'func':'mixdevice.measureByDMM', 'args':['ch1','7000mv','', 0.2]}",,5000,,0,100,mV,,,DMM Module
+,FCT,Power_Rail,@BATT_TEMP_BIAS_Volt,common.rpc_call,"{'func':'mixdevice.measureByDMM', 'args':['ch1','7000mv','VOLT_MEAS_MUX_SEL_BUD_TP50_BATT_TEMP_BIAS', 0.2]}",,5000,,-10,10,mV,,,DMM Module
+,FCT,Power_Rail,@THERMISTOR_Volt,common.rpc_call,"{'func':'mixdevice.measureByDMM', 'args':['ch1','7000mv','VOLT_MEAS_MUX_SEL_BUD_TP49_THERMISTOR', 0.2]}",,5000,,-10,10,mV,,,DMM Module
+
+,FCT,SHIP_MODE,@Fixture_Power_off,common.rpc_call,"{'func':'mixdevice.reset'}",,20000,,--PASS--,--PASS--,,,,

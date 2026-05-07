@@ -1,0 +1,115 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import zmq
+import time
+import traceback
+import threading
+from rtrpcLib import zmqports, levels
+
+
+def timestamp():
+    t = time.time()
+    return '{}.{:06d}'.format(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(t)), int((t - int(t)) * 1000000))
+
+
+class Publisher(object):
+    logging_level = levels.INFO
+
+    def __init__(self, identity):
+        self.identity = identity
+
+    def publish(self, msg, id_postfix=None, level=levels.INFO):
+        if level > Publisher.logging_level:
+            return
+        ts = timestamp()
+        id_str = self.identity
+        if id_postfix:
+            id_str = id_str + '--' + id_postfix
+        if hasattr(self, '_send'):
+            self._send(str(ts), id_str, msg, level)
+
+
+class NoOpPublisher(Publisher):
+    def __init__(self):
+        super(NoOpPublisher, self).__init__('noop')
+
+    def publish(self, *args, **kwargs):
+        return
+
+
+class TestPublisher(Publisher):
+    def __init__(self, identity='Test', msg_list=None):
+        super(TestPublisher, self).__init__(identity)
+        if not msg_list:
+            self.msg_list = []
+        else:
+            self.msg_list = msg_list
+
+    def _send(self, ts, id_str, msg, level):
+        self.msg_list.append([ts, level, id_str, msg])
+
+
+class StdOutPublisher(Publisher):
+
+    @staticmethod
+    def _send(ts, id_str, msg, level):
+        print('[%s\t[%d] %s:%s' % (ts, level, id_str, msg))
+
+
+class ZmqPublisher(Publisher):
+    __publishers = {}
+    __mutex = threading.Lock()
+
+    def __new__(cls, *args, **kwargs):
+        if len(args) > 2:
+            endpoint = args[1]
+        else:
+            endpoint = kwargs['endpoint']
+        header, ip, port = endpoint.split(':')
+        if ip == '//0.0.0.0' and header == "tcp":
+            ip = '//*'
+        endpoint = '{}:{}:{}'.format(header, ip, port)
+        with cls.__mutex:
+            if not endpoint in cls.__publishers:
+                cls.__publishers[endpoint] = super(ZmqPublisher, cls).__new__(cls)
+        return cls.__publishers[endpoint]
+
+    def __init__(self, ctx, endpoint, identity):
+        super(ZmqPublisher, self).__init__(identity)
+        self.publisher = ctx.socket(zmq.PUB)
+        identity = identity if isinstance(identity, bytes) else identity.encode()
+        self.publisher.setsockopt(zmq.IDENTITY, identity)
+        self.publisher.setsockopt(zmq.XPUB_NODROP, 1)
+        self.publisher.bind(endpoint)
+        self.lock = threading.Lock()
+
+    def _send(self, ts, id_str, msg, level):
+        # zmq socket is not thread safe
+        data = [
+            zmqports.PUB_CHANNEL,
+            str(ts).encode(),
+            str(level).encode(),
+            str(id_str).encode(),
+            str(msg).encode()
+        ]
+        with self.lock:
+            try:
+                self.publisher.send_multipart(data)
+            except Exception as e:
+                # retry once
+                time.sleep(1)
+                self.publisher.send_multipart(data)
+
+    def stop(self):
+        if not self.publisher.closed:
+            if zmq is None:  # the zmq module may have been released by this time
+                return
+            self.publisher.setsockopt(zmq.LINGER, 0)
+            self.publisher.close()
+
+    def __del__(self):
+        self.stop()
+        for k, v in list(ZmqPublisher.__publishers.items()):
+            if v == self:
+                ZmqPublisher.__publishers.pop(k)

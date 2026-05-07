@@ -1,0 +1,196 @@
+{
+    "project": "EXAMPLE_CONFIG",
+    "defaults": {
+        "site": 10,
+        "log_file_path": "D:\\vault\\StationLog",
+        "url": "tcp://127.0.0.1",
+        "mode": "normal",
+        "main_seq_site": 0,
+        "dimensions": 1,
+        "logging_level": 2
+    },
+    "autoscan": true,
+    "sequencer": {
+        "max_fails_before_stop": 1,
+        "customizer": "x527.sequencer.customizer"
+    },
+    "logger": {
+        "default_subscribers": [
+            {
+                "port": "SEQUENCER_PUB",
+                "zmq_channel": "PUB_CHANNEL",
+                "callback": "event_dispatch"
+            },
+            {
+                "port": "SEQUENCER_SUPP_PUB",
+                "zmq_channel": "PUB_CHANNEL",
+                "callback": "event_dispatch",
+                "subscriber_per_site": 1
+            }
+        ],
+        "loggers": [
+            {
+                "alias": "Pudding",
+                "enabled": "Yes",
+                "class": "PuddingLogger",
+                "priority": 9
+            },
+            {
+                "alias": "Pivot CSV",
+                "enabled": "Yes",
+                "priority": 8,
+                "class": "PivotLogger",
+                "log_file_suffix": "pivot.csv"
+            },
+            {
+                "alias": "Fail Only Pivot CSV",
+                "enabled": "Yes",
+                "class": "PivotLogger",
+                "log_file_suffix": "FAIL_Summary.csv",
+                "on_item_finish": "pivot_item_finish_fail"
+            },
+            {
+                "alias": "PFA style CSV",
+                "enabled": "Yes",
+                "priority": 8,
+                "log_file_suffix": "all.csv",
+                "class": "CSVLogger"
+            },
+            {
+                "alias": "Test Flow",
+                "enabled": "Yes",
+                "priority": 3,
+                "log_file_suffix": "flow_plain.log",
+                "on_item_start": "flow_log_item_start",
+                "on_item_finish": "flow_log_item_finish"
+            },
+            {
+                "alias": "Datalogger",
+                "enabled": "Yes",
+                "log_file_suffix": "datalogger.csv",
+                "subscribers": [
+                    {
+                        "port": "DATALOGGER_PUB"
+                    }
+                ]
+            },
+            {
+                "alias": "Fixture MCU",
+                "enabled": "Yes",
+                "priority": 3,
+                "log_file_suffix": "hw.log",
+                "subscribers": [
+                    {
+                        "port": "ARM_PUB"
+                    }
+                ]
+            },
+            {
+                "alias": "format_log",
+                "enabled": "Yes",
+                "priority": 9,
+                "log_file_suffix": "format.log",
+                "subscribers": [
+                    {
+                        "port": "FORMAT_PUB"
+                    }
+                ]
+            },
+            {
+                "alias": "SOC UART",
+                "enabled": "Yes",
+                "priority": 3,
+                "log_file_suffix": "uart.log",
+                "subscribers": [
+                    {
+                        "port": "UART2_PUB"
+                    }
+                ]
+            },
+            {
+                "alias": "PCH UART",
+                "enabled": "Yes",
+                "priority": 3,
+                "log_file_suffix": "IPD_uart.log",
+                "subscribers": [
+                    {
+                        "port": "UART_PUB"
+                    }
+                ]
+            },
+            {
+                "alias": "All-in-One Test Flow",
+                "enabled": "Yes",
+                "priority": 8,
+                "log_file_suffix": "flow.log",
+                "on_item_start": "flow_log_item_start",
+                "on_item_finish": "flow_log_item_finish",
+                "subscribers": [
+                    {
+                        "port": "UART2_PUB"
+                    },
+                    {
+                        "port": "ARM_PUB",
+                        "auto_line_ending": "Yes"
+                    }
+                ]
+            },
+            {
+                "alias": "Test Engine",
+                "enabled": "Yes",
+                "priority": 2,
+                "log_file_suffix": "engine.log",
+                "subscribers": [
+                    {
+                        "port": "TEST_ENGINE_PUB",
+                        "zmq_channel": "PUB_CHANNEL",
+                        "auto_line_ending": "Yes"
+                    },
+                    {
+                        "port": "TEST_ENGINE_SUPP_PUB",
+                        "zmq_channel": "PUB_CHANNEL",
+                        "auto_line_ending": "Yes",
+                        "subscriber_per_site": 1
+                    }
+                ]
+            },
+            {
+                "alias": "Sequencer Logger",
+                "enabled": "Yes",
+                "log_file_suffix": "sequencer.log",
+                "priority": 1,
+                "subscribers": [
+                    {
+                        "port": "SEQUENCER_PUB",
+                        "zmq_channel": "PUB_CHANNEL",
+                        "auto_line_ending": "Yes"
+                    },
+                    {
+                        "port": "SEQUENCER_SUPP_PUB",
+                        "zmq_channel": "PUB_CHANNEL",
+                        "auto_line_ending": "Yes",
+                        "subscriber_per_site": 1
+                    }
+                ]
+            },
+            {
+                "alias": "Extra logs",
+                "enabled": "Yes",
+                "priority": 8,
+                "on_sequence_start": "blob_extra_files"
+            },
+            {
+                "alias": "Power sequence Logger",
+                "enabled": "Yes",
+                "class": "PwrSeqLogger",
+                "log_file_suffix": "power_seq.csv",
+                "subscribers": [
+                    {
+                        "port": "PWR_SEQUENCER_PUB",
+                        "callback": "on_powerseq_data"
+                    }
+                ]
+            }
+        ]
+    }
+}

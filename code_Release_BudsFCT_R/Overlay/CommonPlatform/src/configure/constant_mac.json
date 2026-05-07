@@ -1,0 +1,54 @@
+{
+  "group": 1,
+  "slots": 1,
+  "fixture": 1,
+  "simulate": true,
+  "project": "CommonPlatform",
+
+  "gui": {
+    "sn_length": 17,
+    "screen_width": 0.9,
+    "screen_height": 0.9
+  },
+
+  "fixture_config": {
+    "type": "uart",
+    "url": "/dev/ttyUSB0",
+    "baudrate": 115200,
+    "timeout": 5,
+    "delimiter": "\r\n",
+    "cmd": {
+      "reset": "S:FUN_RESET()",
+      "start": "S:FUN_START()",
+      "mid": "S:FUN_MID()",
+      "down": "S:FUN_DOWN()",
+      "up": "S:FUN_UP()",
+      "fix": "S:FUN_FIX_DUT()",
+      "release": "S:FUN_RELEASE_DUT()",
+      "version": "S:VERSION()"
+    }
+  },
+
+  "scanner_config": {
+    "type": "uart",
+    "url": "/dev/scanner",
+    "baudrate": 115200,
+    "timeout": 5,
+    "delimiter": "\r\n",
+    "cmd": {
+      "scan": "scan"
+    }
+  },
+
+  "processes": {
+    "engine-0": {
+      "command": ["sh", "/Users/prm2432/Documents/release_for_mac/engine/run_launcher.sh"]
+    },
+    "sequencer-0": {
+      "command": ["python3", "/Users/prm2432/Documents/release_for_mac/venv/lib/python3.9/site-packages/rtSque/sequencer/sequencer.py", "-s", "0"]
+    },
+    "logger": {
+      "command": ["python3", "/Users/prm2432/Documents/release_for_mac/venv/lib/python3.9/site-packages/rtSque/loggers/logger.py"]
+    }
+  }
+}

@@ -1,0 +1,3 @@
+devie EZAIRO8300_SPI_FLASH_W25Q16JV
+speed 1000
+if swd

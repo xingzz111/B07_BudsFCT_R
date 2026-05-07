@@ -1,0 +1,13 @@
+TESTNAME,SUBTESTNAME,SUBSUBTESTNAME,DESCRIPTION,FUNCTION,PARAM1,PARAM2,LOW,HIGH,UNIT,TIMEOUT,KEY,VAL,FAIL_COUNT,DIMENSION
+Fixture,Info,ResetALL,,common.reset,,,,,,5000,,,,
+Fixture,Info,SN,,common.get_scan_sn,[[scanned_sn]],,,,,5000,,,,
+Fixture,Info,CoboreFWVersion,,common.fw_version,,,,,,5000,,,,
+Fixture,Info,Station_ID,,common.station_name,"D61_BTE_DFU-FCT",,,,,5000,,,,
+Fixture,Info,Slot_ID,,common.slot_id,,{{slot_id}},,,,5000,,,,
+Fixture,Info,Vendor_ID,,common.vendor_id,,,,,,5000,,,,
+Fixture,Info,Fixture_ID,,common.fixture_id,,,,,,5000,,,,
+OVP,VBUS,RESET_HW,,common.reset,,,,,,60000,,,,
+
+
+
+

@@ -1,0 +1,28 @@
+Disable,Group,SubTestName,SubSubTestName,Function,Input,Output,Timeout,Policy,LowerLimit,UpperLimit,Units,Condition,StopOnFail,Notes
+,Fixture,Info,@Power_ON,common.dut_power_on,8000,,20000,,--PASS--,--PASS--,,,,PSU Module
+,Fixture,Info,@Scan_PCBA_SN,common.run_bmt_cmd,"{'cmd_key':'READ_USB_SN_2', 'parse_pattern':'USBSerialNumberString=.([\w\s]+).'}",[[scanned_sn]],30000,,,,,,Y,BMT
+,Fixture,Info,Station_ID,common.station_id,[[station_id]],,5000,,,,,,,
+,Fixture,Info,Delay_After_Station_ID,common.delay,1000,,20000,,,,,,,
+,Fixture,Info,@Get_BMT_Version,common.run_bmt_cmd,"{'cmd_key':'GET_VERSION', 'parse_pattern':'BMT: (.*),'}",,50000,,5.1.0-1286+e381751,5.1.0-1286+e381751,,,,BMT
+,Fixture,Info,@Get_TestEngine_Version,common.run_bmt_cmd,"{'cmd_key':'GET_TESTENGINE_VERSION', 'parse_pattern':'TestEngineApp.exe (.+\+\w+)'}",,50000,,3.1.1+ba7485d,3.1.1+ba7485d,,,,TestEngine
+
+,FCT,Power_Rail,Relay_Connect_DMM_VIN1_SEL_SW,common.rpc_call,"{'func':'mixdevice.relay', 'args':['DMM_VIN1_SEL_SW']}",,,,,,,,,
+,FCT,Power_Rail,@VOLT_MEAS_VCHG_VOLT,common.rpc_call,"{'func':'mixdevice.measureByDMM', 'args':['ch1','7000mv','VOLT_MEAS_MUX_SEL_DUT_VCHARGE_SNS', 0.2]}",,5000,,,,mV,,,DMM Module
+,FCT,Power_Rail,@VOLT_MEAS_DUT_QCC_1V8,common.rpc_call,"{'func':'mixdevice.measureByDMM', 'args':['ch1','7000mv','VOLT_MEAS_MUX_SEL_BUD_TP38_QCC_1V8', 0.2]}",,5000,,1700,1900,mV,,,DMM Module
+,FCT,Power_Rail,@VOLT_MEAS_QCC_MIC_BIAS,common.rpc_call,"{'func':'mixdevice.measureByDMM', 'args':['ch1','7000mv','VOLT_MEAS_MUX_SEL_BUD_TP53_QCC_MIC_BIAS_SPEAK', 0.2]}",,5000,,,,mV,,,DMM Module
+,FCT,Power_Rail,@VOLT_MEAS_BATT_TEMP_BIAS_VOLT,common.rpc_call,"{'func':'mixdevice.measureByDMM', 'args':['ch1','7000mv','VOLT_MEAS_MUX_SEL_BUD_TP50_BATT_TEMP_BIAS', 0.2]}",,5000,,,,mV,,,DMM Module
+,FCT,Power_Rail,@VOLT_MEAS_THERMISTOR_VOLT,common.rpc_call,"{'func':'mixdevice.measureByDMM', 'args':['ch1','7000mv','VOLT_MEAS_MUX_SEL_BUD_TP49_THERMISTOR', 0.2]}",,5000,,,,mV,,,DMM Module
+
+,FCT,BMT_DIAGS,@Start_BMT_Server,common.start_bmt_server,"{'sn':[[scanned_sn]] }",,20000,,--PASS--,--PASS--,,,,BMT
+,FCT,BMT_DIAGS,@Send_Mutil_CMD_DUT_INFO,common.bmt_client_mutil_send,"{'cmd_list':['CHECK_WRITE_STATION', 'FW_VERSION'], 'Timeout':10000}",,40000,R,--PASS--,--PASS--,,,,BMT
+,FCT,BMT_DIAGS,@CHECK_STATION_FLAG,common.parse_client_resp,"{'cmd_key':'CHECK_WRITE_STATION', 'parse_pattern':'(Station1Status=\w+)', 'Timeout':5000}",,20000,,Station1Status=Pass,Station1Status=Pass,,,,BMT
+,FCT,BMT_DIAGS,@Read_Diags_FW,common.parse_client_resp,"{'cmd_key':'FW_VERSION', 'expect_keyword':'ProductInfo.FirmwareVersion.Status Version', 'parse_pattern':'Version=([\w\.\+-]+)', 'Timeout':5000}",,20000,,0.0.10-46+gac66574,0.0.10-46+gac66574,,,,BMT
+
+,FCT,SHIP_MODE,@Measure_Charger_current_3V7,common.rpc_call,"{'func':'mixdevice.measureCurrentByOdin', 'args':['battery', '500ma']}",,,,-110,-70,mA,,,PSU Module
+,FCT,SHIP_MODE,GET_TEST_RESULT,common.get_test_result,[[result]],{{Test_Result}},60000,R,,,,,,
+,FCT,SHIP_MODE,@WRITE_STATION2_FLAG_PASS,common.bmt_client_send,"{'cmd_key':'WRITE_STATION2_FLAG_PASS', 'parse_pattern': '(Station2Status=\w+)','Timeout':3000}",,60000,,Station2Status=Pass,Station2Status=Pass,,Test_Result == PASS,,BMT
+,FCT,SHIP_MODE,@CHECK_WRITE_STATION2_FLAG_PASS,common.bmt_client_send,"{'cmd_key':'CHECK_WRITE_STATION', 'parse_pattern': '(Station2Status=\w+)', 'Timeout':3000}",,20000,,Station2Status=Pass,Station2Status=Pass,,Test_Result == PASS,,BMT
+,FCT,SHIP_MODE,@WRITE_STATION2_FLAG_FAIL,common.bmt_client_send,"{'cmd_key':'WRITE_STATION2_FLAG_FAIL', 'parse_pattern': '(Station2Status=\w+)','Timeout':3000}",,60000,,Station2Status=None,Station2Status=None,,Test_Result == FAIL,,BMT
+,FCT,SHIP_MODE,@CHECK_WRITE_STATION2_FLAG_FAIL,common.bmt_client_send,"{'cmd_key':'CHECK_WRITE_STATION', 'parse_pattern': '(Station2Status=\w+)', 'Timeout':3000}",,20000,,Station2Status=None,Station2Status=None,,Test_Result == FAIL,,BMT
+,FCT,SHIP_MODE,@Stop_BMT_Server,common.close_bmt_server,,,20000,,--PASS--,--PASS--,,,,BMT
+,FCT,SHIP_MODE,@GET_CORE_DUMP,common.run_bmt_cmd,"{'cmd_key':'Get_Core_Dump', 'cmd_args':[[[scanned_sn]]], 'expect_keyword': 'Debug.TAP.Result TapCommandStatus=OK','parse_pattern':'crashlog info->(status = \d)', 'Timeout':10000}",,600000,,--PASS--,--PASS--,,,,BMT

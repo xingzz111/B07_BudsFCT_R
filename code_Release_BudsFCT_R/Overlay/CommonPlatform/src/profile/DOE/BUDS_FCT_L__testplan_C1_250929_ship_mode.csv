@@ -1,0 +1,42 @@
+Disable,Group,SubTestName,SubSubTestName,Function,Input,Output,Timeout,Policy,LowerLimit,UpperLimit,Units,Condition,StopOnFail,Notes
+,Fixture,Info,@Power_ON,common.dut_power_on,8000,,20000,,--PASS--,--PASS--,,,,PSU Module
+,Fixture,Info,@Scan_PCBA_SN,common.run_bmt_cmd,"{'cmd_key':'READ_USB_SN_2', 'parse_pattern':'USBSerialNumberString=.([\w\s]+).'}",[[scanned_sn]],30000,,,,,,Y,BMT
+,Fixture,Info,@Check_UOP,common.check_uop,[[[scanned_sn]]],,15000,,,,,,,MES
+,Fixture,Info,@Get_MAC_INFO,common.query_mac_by_sn_tmp,[[scanned_sn]],[[mes_info]],15000,,,,,,,MES
+,Fixture,Info@MACCODE,MACCODE,common.get_value_by_key,[[mes_info]],[[mac_address]],3000,,,,,,,MES
+,Fixture,Info@LICENSE_KEY,LICENSE_KEY,common.get_value_by_key,[[mes_info]],[[LICENSE_KEY]],3000,,,,,,,MES
+,Fixture,Info@APTX_LICENSE_KEY,APTX_LICENSE_KEY,common.get_value_by_key,[[mes_info]],[[APTX_LICENSE_KEY]],3000,,,,,,,MES
+,Fixture,Info,Station_ID,common.station_id,[[station_id]],,5000,,,,,,,
+,Fixture,Info,Delay_After_Station_ID,common.delay,1000,,20000,,,,,,,
+,Fixture,Info,@Get_BMT_Version,common.run_bmt_cmd,"{'cmd_key':'GET_VERSION', 'parse_pattern':'BMT: (.*),'}",,50000,,5.1.0-1286+e381751,5.1.0-1286+e381751,,,,BMT
+,Fixture,Info,@Get_TestEngine_Version,common.run_bmt_cmd,"{'cmd_key':'GET_TESTENGINE_VERSION', 'parse_pattern':'TestEngineApp.exe (.+\+\w+)'}",,50000,,3.1.1+ba7485d,3.1.1+ba7485d,,,,TestEngine
+
+,FCT,Power_Rail,Relay_Connect_DMM_VIN1_SEL_SW,common.rpc_call,"{'func':'mixdevice.relay', 'args':['DMM_VIN1_SEL_SW']}",,,,,,,,,
+,FCT,Power_Rail,@VOLT_MEAS_VCHG_VOLT,common.rpc_call,"{'func':'mixdevice.measureByDMM', 'args':['ch1','7000mv','VOLT_MEAS_MUX_SEL_DUT_VCHARGE_SNS', 0.2]}",,5000,,4900,5100,mV,,,DMM Module
+,FCT,Power_Rail,@VOLT_MEAS_DUT_QCC_1V8,common.rpc_call,"{'func':'mixdevice.measureByDMM', 'args':['ch1','7000mv','VOLT_MEAS_MUX_SEL_BUD_TP38_QCC_1V8', 0.2]}",,5000,,1700,1900,mV,,,DMM Module
+,FCT,Power_Rail,@VOLT_MEAS_QCC_MIC_BIAS,common.rpc_call,"{'func':'mixdevice.measureByDMM', 'args':['ch1','7000mv','VOLT_MEAS_MUX_SEL_BUD_TP53_QCC_MIC_BIAS_SPEAK', 0.2]}",,5000,,0,500,mV,,,DMM Module
+,FCT,Power_Rail,@VOLT_MEAS_BATT_TEMP_BIAS_VOLT,common.rpc_call,"{'func':'mixdevice.measureByDMM', 'args':['ch1','7000mv','VOLT_MEAS_MUX_SEL_BUD_TP50_BATT_TEMP_BIAS', 0.2]}",,5000,,-10,10,mV,,,DMM Module
+,FCT,Power_Rail,@VOLT_MEAS_THERMISTOR_VOLT,common.rpc_call,"{'func':'mixdevice.measureByDMM', 'args':['ch1','7000mv','VOLT_MEAS_MUX_SEL_BUD_TP49_THERMISTOR', 0.2]}",,5000,,-10,10,mV,,,DMM Module
+
+,FCT,BMT_DIAGS,@Start_BMT_Server,common.start_bmt_server,"{'sn':[[scanned_sn]] }",,20000,,--PASS--,--PASS--,,,,BMT
+
+,FCT,SHIP_MODE,@Measure_Charger_current_3V7,common.rpc_call,"{'func':'mixdevice.measureCurrentByOdin', 'args':['battery', '500ma']}",,,,-110,-70,mA,,,PSU Module
+,FCT,SHIP_MODE,GET_TEST_RESULT,common.get_test_result,[[result]],{{Test_Result}},60000,R,,,,,,
+,FCT,SHIP_MODE,@WRITE_STATION2_FLAG_PASS,common.bmt_client_send,"{'cmd_key':'WRITE_STATION2_FLAG_PASS', 'parse_pattern': '(Station2Status=\w+)','Timeout':3000}",,60000,,Station2Status=Pass,Station2Status=Pass,,Test_Result == PASS,,BMT
+,FCT,SHIP_MODE,@CHECK_WRITE_STATION2_FLAG_PASS,common.bmt_client_send,"{'cmd_key':'CHECK_WRITE_STATION', 'parse_pattern': '(Station2Status=\w+)', 'Timeout':3000}",,20000,,Station2Status=Pass,Station2Status=Pass,,Test_Result == PASS,,BMT
+,FCT,SHIP_MODE,@WRITE_STATION2_FLAG_FAIL,common.bmt_client_send,"{'cmd_key':'WRITE_STATION2_FLAG_FAIL', 'parse_pattern': '(Station2Status=\w+)','Timeout':3000}",,60000,,Station2Status=None,Station2Status=None,,Test_Result == FAIL,,BMT
+,FCT,SHIP_MODE,@CHECK_WRITE_STATION2_FLAG_FAIL,common.bmt_client_send,"{'cmd_key':'CHECK_WRITE_STATION', 'parse_pattern': '(Station2Status=\w+)', 'Timeout':3000}",,20000,,Station2Status=None,Station2Status=None,,Test_Result == FAIL,,BMT
+,FCT,SHIP_MODE,@Stop_BMT_Server,common.close_bmt_server,,,20000,,--PASS--,--PASS--,,,,BMT
+,FCT,SHIP_MODE,Relay_Connect_DMM_VIN1_SEL_SW,common.rpc_call,"{'func':'mixdevice.relay', 'args':['DMM_VIN1_SEL_SW']}",,,,,,,,,
+,FCT,SHIP_MODE,@VOLT_MEAS_DUT_QCC_BAT_STB_L,common.rpc_call,"{'func':'mixdevice.measureByDMM', 'args':['ch1','7000mv','VOLT_MEAS_MUX_SEL_BUD_TP34_QCC_BAT_STB', 0.2]}",,5000,,-50,50,mV,,,DMM Module
+,FCT,SHIP_MODE,@GET_CORE_DUMP,common.run_bmt_cmd,"{'cmd_key':'Get_Core_Dump', 'cmd_args':[[[scanned_sn]]], 'expect_keyword': 'Debug.TAP.Result TapCommandStatus=OK','parse_pattern':'crashlog info->(status = \d)', 'Timeout':10000}",,600000,,--PASS--,--PASS--,,,,BMT
+
+,FCT,SHIP_MODE,@Set_Ship_Mode,common.run_bmt_cmd,"{'cmd_key':'SET_SHIP_MODE', 'cmd_args':[[[scanned_sn]]], 'parse_pattern':'(Control.ShipMode.\w+)', 'Timeout':5000}",,20000,,Control.ShipMode.Result,Control.ShipMode.Result,,,,BMT
+,FCT,SHIP_MODE,Delay_After_Set_Ship_Mode,common.delay,5000,,20000,,,,,,,
+,FCT,SHIP_MODE,@VOLT_MEAS_DUT_QCC_BAT_STB_H,common.rpc_call,"{'func':'mixdevice.measureByDMM', 'args':['ch1','7000mv','VOLT_MEAS_MUX_SEL_BUD_TP34_QCC_BAT_STB', 0.2]}",,5000,,1700,1900,mV,,,DMM Module
+,FCT,SHIP_MODE,@PSU_Charge_Disable,common.rpc_call,"{'func':'mixdevice.chargeDisable'}",,,,,,,,,
+,FCT,SHIP_MODE,@Relay_Disconnect_PSU_VCHG_TO_DUT,common.rpc_call,"{'func':'mixdevice.relay', 'args':['PSU_VCHG_TO_DUT', 'DISCONNECT']}",,,,,,,,,
+,FCT,SHIP_MODE,@Relay_Disconnect_USB_SEL_SW,common.rpc_call,"{'func':'mixdevice.relay', 'args':['USB_SEL_SW', 'DISCONNECT']}",,,,,,,,,
+,FCT,SHIP_MODE,Delay_After_PSU_Charge_Disable,common.delay,1000,,20000,,,,,,,
+,FCT,SHIP_MODE,@VOLT_MEAS_DUT_QCC_BAT_STB_Charge_Disable,common.rpc_call,"{'func':'mixdevice.measureByDMM', 'args':['ch1','7000mv','VOLT_MEAS_MUX_SEL_BUD_TP34_QCC_BAT_STB', 0.2]}",,5000,,-50,50,mV,,,DMM Module
+,FCT,SHIP_MODE,@Measure_ShipMode_Current,common.rpc_call,"{'func':'mixdevice.measureCurrentByOdin', 'args':['battery', '100ua']}",,,,,,mA,,,PSU Module

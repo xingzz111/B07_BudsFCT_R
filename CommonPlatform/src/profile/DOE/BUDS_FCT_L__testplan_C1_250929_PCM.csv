@@ -1,0 +1,33 @@
+Disable,Group,SubTestName,SubSubTestName,Function,Input,Output,Timeout,Policy,LowerLimit,UpperLimit,Units,Condition,StopOnFail,Notes
+,Fixture,Info,init,common.rpc_call,"{'func':'mixdevice.reset'}",,20000,,,,,,,
+
+,FCT,PCM_TEST_OVP,Relay_PCM_Test,common.rpc_call,"{'func':'mixdevice.relay', 'args':['PCM_TEST_RELAY']}",,,,,,,,,
+,FCT,PCM_TEST_OVP,PSU_Charge_Enable_3V8,common.rpc_call,"{'func':'mixdevice.chargeEnable', 'args':[3800, 100]}",,,,,,,,,PSU Module
+,FCT,PCM_TEST_OVP,PCM_TEST_OVP_Delay_100ms_1,common.delay,100,,20000,,,,,,,
+,FCT,PCM_TEST_OVP,Battery_Enable_0V1,common.rpc_call,"{'func':'mixdevice.batteryEnable', 'args':[100, 1]}",,,,--PASS--,--PASS--,,,,PSU Module
+,FCT,PCM_TEST_OVP,PCM_TEST_OVP_Delay_100ms_2,common.delay,100,,20000,,,,,,,
+,FCT,PCM_TEST_OVP,Relay_PCM_Wakeup_Connect,common.rpc_call,"{'func':'mixdevice.relay', 'args':['PCM_WAKR_UP']}",,,,,,,,,
+,FCT,PCM_TEST_OVP,PCM_TEST_OVP_Delay_500ms_1,common.delay,500,,20000,,,,,,,
+,FCT,PCM_TEST_OVP,Relay_PCM_Wakeup_Disonnect,common.rpc_call,"{'func':'mixdevice.relay', 'args':['PCM_WAKR_UP','DISCONNECT']}",,,,,,,,,
+,FCT,PCM_TEST_OVP,PCM_TEST_OVP_Delay_500ms_2,common.delay,500,,20000,,,,,,,
+,FCT,PCM_TEST_OVP,@OVP_Measure_Voltage_Normal,common.rpc_call,"{'func':'mixdevice.measureVoltageByOdin', 'args':['battery']}",,,,0,20,mV,,,PSU Module
+,FCT,PCM_TEST_OVP,PSU_Charge_Enable_4V4,common.rpc_call,"{'func':'mixdevice.chargeEnable', 'args':[4500, 100]}",,,,,,,,,PSU Module
+,FCT,PCM_TEST_OVP,PCM_TEST_OVP_Delay_500ms_3,common.delay,500,,20000,,,,,,,
+,FCT,PCM_TEST_OVP,@Measure_Voltage_OVP,common.rpc_call,"{'func':'mixdevice.measureVoltageByOdin', 'args':['battery']}",,,,90,110,mV,,,PSU Module
+,FCT,PCM_TEST_OVP,Resetall,common.rpc_call,"{'func':'mixdevice.reset'}",,20000,,,,,,,
+
+
+
+,FCT,PCM_TEST_UVP,Relay_PCM_Test,common.rpc_call,"{'func':'mixdevice.relay', 'args':['PCM_TEST_RELAY']}",,,,,,,,,
+,FCT,PCM_TEST_UVP,PSU_Charge_Enable_3V8,common.rpc_call,"{'func':'mixdevice.chargeEnable', 'args':[3800, 100]}",,,,,,,,,PSU Module
+,FCT,PCM_TEST_UVP,PCM_TEST_UVP_Delay_100ms,common.delay,100,,20000,,,,,,,
+,FCT,PCM_TEST_UVP,Battery_Enable_0V1,common.rpc_call,"{'func':'mixdevice.batteryEnable', 'args':[100, 1]}",,,,--PASS--,--PASS--,,,,PSU Module
+,FCT,PCM_TEST_UVP,Relay_PCM_Wakeup_Connect,common.rpc_call,"{'func':'mixdevice.relay', 'args':['PCM_WAKR_UP']}",,,,,,,,,
+,FCT,PCM_TEST_UVP,PCM_TEST_UVP_Delay_500ms_1,common.delay,500,,20000,,,,,,,
+,FCT,PCM_TEST_UVP,Relay_PCM_Wakeup_DisConnect,common.rpc_call,"{'func':'mixdevice.relay', 'args':['PCM_WAKR_UP','DISCONNECT']}",,,,,,,,,
+,FCT,PCM_TEST_UVP,PCM_TEST_UVP_Delay_500ms_2,common.delay,500,,20000,,,,,,,
+,FCT,PCM_TEST_UVP,@UVP_Measure_Voltage_Normal,common.rpc_call,"{'func':'mixdevice.measureVoltageByOdin', 'args':['battery']}",,,,0,20,mV,,,PSU Module
+,FCT,PCM_TEST_UVP,PSU_Charge_Enable_2V7,common.rpc_call,"{'func':'mixdevice.chargeEnable', 'args':[2700, 100]}",,,,,,,,,PSU Module
+,FCT,PCM_TEST_UVP,PCM_TEST_UVP_Delay_500ms_3,common.delay,500,,20000,,,,,,,
+,FCT,PCM_TEST_UVP,@Measure_Voltage_UVP,common.rpc_call,"{'func':'mixdevice.measureVoltageByOdin', 'args':['battery']}",,,,90,110,mV,,,PSU Module
+,FCT,PCM_TEST_UVP,@Fixture_Power_off,common.fixture_power_off,0,,20000,,--PASS--,--PASS--,,,,

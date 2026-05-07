@@ -1,0 +1,108 @@
+{
+  "shared_devices": {
+    "base_i2c_ch0": {
+      "class": "PRMSoftI2CBus",
+      "scl": 1,
+      "sda": 0,
+      "freq": 100000
+    },
+    "dmm_iic_ch0": {
+      "class": "PRMSoftI2CBus",
+      "scl": 7,
+      "sda": 6,
+      "freq": 100000
+    },
+    "psu_iic_ch0":{
+      "class": "PRMSoftI2CBus",
+      "scl": 9,
+      "sda": 8,
+      "freq": 100000
+    },
+    "sib_iic_ch0":{
+      "class": "PRMSoftI2CBus",
+      "scl": 15,
+      "sda": 14,
+      "freq": 100000
+    },
+    "eload_iic_ch0":{
+      "class": "PRMSoftI2CBus",
+      "scl": 17,
+      "sda": 16,
+      "freq": 100000
+    },
+    "psu_eeprom_iic_ch0":{
+      "class": "PRMSoftI2CBus",
+      "scl": 21,
+      "sda": 20,
+      "freq": 100000
+    },
+    "psu_eeprom_ch0":{
+      "class": "PRMCAT24C256",
+      "dev_addr": 80,
+      "i2c_bus": "@psu_eeprom_iic_ch0"
+    },
+    "dmm_eeprom_ch0":{
+      "class": "PRMCAT24C256",
+      "dev_addr": 80,
+      "i2c_bus": "@dmm_iic_ch0"
+    },
+    "base_eeprom_ch0":{
+      "class": "PRMCAT24C256",
+      "dev_addr": 80,
+      "i2c_bus": "@base_i2c_ch0"
+    }
+
+  },
+  "duts": {
+    "dut0": {
+      "dmm": {
+        "class": "PRM_DMMV20",
+        "i2c_bus": "@dmm_iic_ch0",
+        "eeprom": "@dmm_eeprom_ch0",
+        "ad7175": {
+          "spi": "SWSPI",
+          "clk": 2,
+          "mosi": 3,
+          "miso": 4,
+          "cs": 5
+        }
+      },
+      "baseboard": {
+        "class": "BaseBoard",
+        "base_iic": "@base_i2c_ch0",
+        "eeprom": "@base_eeprom_ch0",
+      },
+      "batteryboard": {
+        "class": "BatteryBoard",
+        "base_iic": "@base_i2c_ch0",
+      },
+      "psu": {
+        "class": "Odin",
+        "power_iic": "@psu_iic_ch0",
+        "eeprom": "@psu_eeprom_ch0",
+        "ad7175": {
+          "spi": "SWSPI",
+          "clk": 10,
+          "mosi": 11,
+          "miso": 12,
+          "cs": 13
+        }
+      },
+      "server": {
+        "tx": 0,
+        "rx": 1,
+        "port": 0,
+        "baudrate": 115200,
+        "keepalive": false
+      },
+      "site": 0
+    }
+  },
+  "network": {
+    "base_ip": "169.254.1.32",
+    "ip_addr_file": "./boot/ip_addr_conf.log",
+    "default_ip": "169.254.1.254"
+  }
+}
+
+

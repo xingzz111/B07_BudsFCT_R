@@ -1,0 +1,32 @@
+from .protocols.jsonrpc import JSONRPCProtocol
+from .transports.transport import PRMServerTransport
+from .server import RPCServer
+from .dispatch import RPCDispatcher
+
+
+class RPCServerWrapper:
+    def __init__(self, transport, publisher, uart=None, protocol=None, dispatcher=None):
+        self.uart = uart
+        self.protocol = protocol if protocol else JSONRPCProtocol()
+        self.dispatcher = dispatcher if dispatcher else RPCDispatcher()
+
+        if isinstance(transport, PRMServerTransport):
+            self.transport = transport
+        else:
+            self.transport = PRMServerTransport(self.uart)
+
+        self.publisher = publisher
+        self.transport.publisher = publisher
+
+        self.rpc_server = RPCServer(self.transport, self.protocol, self.dispatcher)
+
+        if hasattr(self.dispatcher, 'public'):
+            @self.dispatcher.public('::stop::')
+            def stop():
+                self.rpc_server.serving = False
+
+    # def start_server(self):
+    #     self.rpc_server.serving = True
+
+    def stop_server(self):
+        self.rpc_server.serving = False

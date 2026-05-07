@@ -1,0 +1,55 @@
+Disable,Group,SubTestName,SubSubTestName,Function,Input,Output,Timeout,Policy,LowerLimit,UpperLimit,Units,Condition,StopOnFail,Notes
+,Fixture,Info,@Power_ON,common.dut_power_on,8000,,20000,,--PASS--,--PASS--,,,,PSU Module
+,Fixture,Info,@Scan_PCBA_SN,common.run_bmt_cmd,"{'cmd_key':'READ_USB_SN_2', 'parse_pattern':'USBSerialNumberString=.([\w\s]+).'}",[[scanned_sn]],30000,,,,,,Y,BMT
+,Fixture,Info,@Check_UOP,common.check_uop,[[[scanned_sn]]],,15000,,,,,,,MES
+,Fixture,Info,@Get_MAC_INFO,common.query_mac_by_sn_tmp,[[scanned_sn]],[[mes_info]],15000,,,,,,,MES
+,Fixture,Info@MACCODE,MACCODE,common.get_value_by_key,[[mes_info]],[[mac_address]],3000,,,,,,,MES
+,Fixture,Info@LICENSE_KEY,LICENSE_KEY,common.get_value_by_key,[[mes_info]],[[LICENSE_KEY]],3000,,,,,,,MES
+,Fixture,Info@APTX_LICENSE_KEY,APTX_LICENSE_KEY,common.get_value_by_key,[[mes_info]],[[APTX_LICENSE_KEY]],3000,,,,,,,MES
+,Fixture,Info,Station_ID,common.station_id,[[station_id]],,5000,,,,,,,
+,Fixture,Info,Delay_After_Station_ID,common.delay,1000,,20000,,,,,,,
+,Fixture,Info,@Get_BMT_Version,common.run_bmt_cmd,"{'cmd_key':'GET_VERSION', 'parse_pattern':'BMT: (.*),'}",,50000,,5.1.0-1286+e381751,5.1.0-1286+e381751,,,,BMT
+,Fixture,Info,@Get_TestEngine_Version,common.run_bmt_cmd,"{'cmd_key':'GET_TESTENGINE_VERSION', 'parse_pattern':'TestEngineApp.exe (.+\+\w+)'}",,50000,,3.1.1+ba7485d,3.1.1+ba7485d,,,,TestEngine
+
+,FCT,Power_Rail,Relay_Connect_DMM_VIN1_SEL_SW,common.rpc_call,"{'func':'mixdevice.relay', 'args':['DMM_VIN1_SEL_SW']}",,,,,,,,,
+,FCT,Power_Rail,@VOLT_MEAS_VCHG_VOLT,common.rpc_call,"{'func':'mixdevice.measureByDMM', 'args':['ch1','7000mv','VOLT_MEAS_MUX_SEL_DUT_VCHARGE_SNS', 0.2]}",,5000,,4900,5100,mV,,,DMM Module
+,FCT,Power_Rail,@VOLT_MEAS_DUT_QCC_1V8,common.rpc_call,"{'func':'mixdevice.measureByDMM', 'args':['ch1','7000mv','VOLT_MEAS_MUX_SEL_BUD_TP38_QCC_1V8', 0.2]}",,5000,,1700,1900,mV,,,DMM Module
+,FCT,Power_Rail,@VOLT_MEAS_QCC_MIC_BIAS,common.rpc_call,"{'func':'mixdevice.measureByDMM', 'args':['ch1','7000mv','VOLT_MEAS_MUX_SEL_BUD_TP53_QCC_MIC_BIAS_SPEAK', 0.2]}",,5000,,0,500,mV,,,DMM Module
+,FCT,Power_Rail,@VOLT_MEAS_BATT_TEMP_BIAS_VOLT,common.rpc_call,"{'func':'mixdevice.measureByDMM', 'args':['ch1','7000mv','VOLT_MEAS_MUX_SEL_BUD_TP50_BATT_TEMP_BIAS', 0.2]}",,5000,,-10,10,mV,,,DMM Module
+,FCT,Power_Rail,@VOLT_MEAS_THERMISTOR_VOLT,common.rpc_call,"{'func':'mixdevice.measureByDMM', 'args':['ch1','7000mv','VOLT_MEAS_MUX_SEL_BUD_TP49_THERMISTOR', 0.2]}",,5000,,-10,10,mV,,,DMM Module
+
+,FCT,BMT_DIAGS,@Start_BMT_Server,common.start_bmt_server,"{'sn':[[scanned_sn]] }",,20000,,--PASS--,--PASS--,,,,BMT
+,FCT,BMT_DIAGS,@Send_Mutil_CMD_DUT_INFO,common.bmt_client_mutil_send,"{'cmd_list':['CHECK_WRITE_STATION', 'FW_VERSION', 'MIC1_DISABLE', 'VPU_DISABLE', 'MIC1_ENABLE'], 'Timeout':10000}",,40000,R,--PASS--,--PASS--,,,,BMT
+,FCT,BMT_DIAGS,@CHECK_STATION_FLAG,common.parse_client_resp,"{'cmd_key':'CHECK_WRITE_STATION', 'parse_pattern':'(Station1Status=\w+)', 'Timeout':5000}",,20000,,Station1Status=Pass,Station1Status=Pass,,,,BMT
+,FCT,BMT_DIAGS,@Read_Diags_FW,common.parse_client_resp,"{'cmd_key':'FW_VERSION', 'expect_keyword':'ProductInfo.FirmwareVersion.Status Version', 'parse_pattern':'Version=([\w\.\+-]+)', 'Timeout':5000}",,20000,,0.0.1-4+g5e20970,0.0.1-4+g5e20970,,,,BMT
+
+,FCT,MIC1_TEST,@MIC1_DISABLE,common.parse_client_resp,"{'cmd_key':'MIC1_DISABLE', 'parse_pattern':'(MicToRouteResp=\w+)', 'Timeout':5000}",,60000,,MicToRouteResp=None,MicToRouteResp=None,,,,BMT
+,FCT,MIC1_TEST,@VPU_DISABLE,common.parse_client_resp,"{'cmd_key':'VPU_DISABLE', 'parse_pattern':'(MicToRouteResp=\w+)','Timeout':5000}",,60000,,MicToRouteResp=None,MicToRouteResp=None,,,,BMT
+,FCT,MIC1_TEST,@MIC1_Enable,common.parse_client_resp,"{'cmd_key':'MIC1_ENABLE', 'parse_pattern':'(MicToRouteResp=\w+)','Timeout':5000}",,60000,,MicToRouteResp=Mic0,MicToRouteResp=Mic0,,,,BMT
+,FCT,MIC1_TEST,CONNECT_FIXTURE_AUDIO_RC_TO_BUD_TP27_QCC_MIC,common.rpc_call,"{'func':'mixdevice.relay', 'args':['FIXTURE_AUDIO_RC_TO_BUD_TP27_QCC_MIC_RELAY']}",,5000,,,,,,,
+,FCT,MIC1_TEST,CONNECT_BUD_P1_AMP_OUT_TO_AUDIO_MEAS,common.rpc_call,"{'func':'mixdevice.relay', 'args':['BUD_P1_AMP_OUT_TO_AUDIO_MEAS_RELAY']}",,5000,,,,,,,
+,FCT,MIC1_TEST,Delay_After_CONNECT_BUD_P1_AMP_OUT_TO_AUDIO,common.delay,1000,,20000,,,,,,,
+,FCT,MIC1_TEST,@ENABLE_MIC1_SPK_1000Hz,common.audio_enable,"[1000, 100]",,60000,,--PASS--,--PASS--,,,,DDS Module
+,FCT,MIC1_TEST,@ANALYSE_MIC1_1000Hz,common.audio_record_and_analyse,"['pcm', 48000, 0]",[[MIC1_INFO]],60000,,,,,,,PCM Module
+,FCT,MIC1_TEST@frequency,@MIC1_Frequency,common.get_value_by_key,[[MIC1_INFO]],,3000,,990,1010,Hz,,,
+,FCT,MIC1_TEST@rms,@MIC1_Vrms,common.get_value_by_key,[[MIC1_INFO]],,3000,,,,mV,,,
+,FCT,MIC1_TEST@thdn,@MIC1_THD+N,common.get_value_by_key,[[MIC1_INFO]],,3000,,0,5,%,,,
+,FCT,MIC1_TEST,@VOLT_MEAS_QCC_MIC_BIAS,common.rpc_call,"{'func':'mixdevice.measureByDMM', 'args':['ch1','7000mv','VOLT_MEAS_MUX_SEL_BUD_TP53_QCC_MIC_BIAS_SPEAK', 0.2]}",,5000,,1850,1970,mV,,,DMM Module
+,FCT,MIC1_TEST,@DISABLE_MIC1_SPK_1000Hz,common.audio_disable,,,6000,,--PASS--,--PASS--,,,,DDS Module
+,FCT,MIC1_TEST,DISCONNECT_FIXTURE_AUDIO_RC_TO_BUD_TP27_QCC_MIC,common.rpc_call,"{'func':'mixdevice.relay', 'args':['FIXTURE_AUDIO_RC_TO_BUD_TP27_QCC_MIC_RELAY', 'DISCONNECT']}",,5000,,,,,,,
+,FCT,MIC1_TEST,@Disable_MIC1,common.bmt_client_send,"{'cmd_key':'MIC1_DISABLE', 'parse_pattern':'(MicToRouteResp=\w+)','Timeout':5000}",,60000,,MicToRouteResp=None,MicToRouteResp=None,,,,BMT
+,FCT,MIC1_TEST,Delay_After_DISABLE_MIC1,common.delay,1000,,20000,,,,,,,
+
+,FCT,VPU_TEST,CONNECT_FIXTURE_AUDIO_RC_TO_BUD_TP27_QCC_MIC,common.rpc_call,"{'func':'mixdevice.relay', 'args':['FIXTURE_PDM_TO_DUT_PDM_ENABLE']}",,5000,,,,,,,
+,FCT,VPU_TEST,@VPU_Enable,common.bmt_client_send,"{'cmd_key':'VPU_ENABLE', 'parse_pattern':'(MicToRouteResp=\w+)','Timeout':5000}",,60000,,MicToRouteResp=Mic1,MicToRouteResp=Mic1,,,,BMT
+,FCT,VPU_TEST,Delay_After_VPU_Enable,common.delay,1000,,20000,,,,,,,
+,FCT,VPU_TEST,@ENABLE_VPU_SPK_1000Hz,common.rpc_call,"{'func':'mixdevice.pdm_simulate_enable', 'args':[32000, 1000, 0.3]}",,5000,,,,,,,PDM Module
+,FCT,VPU_TEST,Delay_After_ENABLE_VPU_SPK_1000Hz,common.delay,1000,,20000,,,,,,,
+,FCT,VPU_TEST,@ANALYSE_VPU_1000Hz,common.audio_record_and_analyse,"['pcm', 48000, 0]",[[VPU_INFO]],60000,,,,,,,PCM Module
+,FCT,VPU_TEST@frequency,@VPU_Frequency,common.get_value_by_key,[[VPU_INFO]],,3000,,,,Hz,,,
+,FCT,VPU_TEST@rms,@VPU_Vrms,common.get_value_by_key,[[VPU_INFO]],,3000,,,,mV,,,
+,FCT,VPU_TEST@thdn,@VPU_THD+N,common.get_value_by_key,[[VPU_INFO]],,3000,,,,%,,,
+,FCT,VPU_TEST,@DISABLE_VPU_SPK_1000Hz,common.rpc_call,"{'func':'mixdevice.pdm_simulate_disable'}",,5000,,,,,,,PDM Module
+,FCT,VPU_TEST,DISCONNECT_FIXTURE_AUDIO_RC_TO_BUD_TP27_QCC_MIC,common.rpc_call,"{'func':'mixdevice.relay', 'args':['FIXTURE_PDM_TO_DUT_PDM_ENABLE', 'DISCONNECT']}",,5000,,,,,,,
+,FCT,VPU_TEST,DISCONNECT_BUD_P1_AMP_OUT_TO_AUDIO_MEAS,common.rpc_call,"{'func':'mixdevice.relay', 'args':['BUD_P1_AMP_OUT_TO_AUDIO_MEAS_RELAY', 'DISCONNECT']}",,5000,,,,,,,
+,FCT,VPU_TEST,@VPU_Disable,common.bmt_client_send,"{'cmd_key':'VPU_DISABLE', 'parse_pattern':'(MicToRouteResp=\w+)','Timeout':5000}",,60000,,MicToRouteResp=None,MicToRouteResp=None,,,,BMT

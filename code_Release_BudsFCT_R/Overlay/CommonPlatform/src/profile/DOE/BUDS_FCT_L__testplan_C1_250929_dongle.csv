@@ -1,0 +1,24 @@
+Disable,Group,SubTestName,SubSubTestName,Function,Input,Output,Timeout,Policy,LowerLimit,UpperLimit,Units,Condition,StopOnFail,Notes
+,Fixture,Info,@Power_ON,common.dut_power_on,8000,,20000,,--PASS--,--PASS--,,,,PSU Module
+,Fixture,Info,@Scan_PCBA_SN,common.run_bmt_cmd,"{'cmd_key':'READ_USB_SN_2', 'parse_pattern':'USBSerialNumberString=.([\w\s]+).'}",[[scanned_sn]],30000,,,,,,Y,BMT
+,Fixture,Info,@Check_UOP,common.check_uop,[[[scanned_sn]]],,15000,,,,,,,MES
+,Fixture,Info,@Get_MAC_INFO,common.query_mac_by_sn_tmp,[[scanned_sn]],[[mes_info]],15000,,,,,,,MES
+,Fixture,Info@MACCODE,MACCODE,common.get_value_by_key,[[mes_info]],[[mac_address]],3000,,,,,,,MES
+,Fixture,Info@LICENSE_KEY,LICENSE_KEY,common.get_value_by_key,[[mes_info]],[[LICENSE_KEY]],3000,,,,,,,MES
+,Fixture,Info@APTX_LICENSE_KEY,APTX_LICENSE_KEY,common.get_value_by_key,[[mes_info]],[[APTX_LICENSE_KEY]],3000,,,,,,,MES
+,Fixture,Info,Station_ID,common.station_id,[[station_id]],,5000,,,,,,,
+,Fixture,Info,Delay_After_Station_ID,common.delay,1000,,20000,,,,,,,
+,Fixture,Info,@Get_BMT_Version,common.run_bmt_cmd,"{'cmd_key':'GET_VERSION', 'parse_pattern':'BMT: (.*),'}",,50000,,5.1.0-1286+e381751,5.1.0-1286+e381751,,,,BMT
+,Fixture,Info,@Get_TestEngine_Version,common.run_bmt_cmd,"{'cmd_key':'GET_TESTENGINE_VERSION', 'parse_pattern':'TestEngineApp.exe (.+\+\w+)'}",,50000,,3.1.1+ba7485d,3.1.1+ba7485d,,,,TestEngine
+
+,FCT,CASE_DETECT_L,@Dongle_Connect_to_DUT,common.run_bmt_cmd,"{'cmd_key':'Connect_DUT_BT', 'parse_pattern':'(Connected):', 'Timeout':15000}",,60000,,Connected,Connected,,,,BMT
+,FCT,CASE_DETECT_L,@MFG_MV_GET_Init,common.run_bmt_cmd,"{'cmd_key':'MFG_MV_GET', 'parse_pattern':'Variable is: (\d+)', 'Timeout':2000}",,60000,R,0,0,,,,BMT
+,FCT,CASE_DETECT_L,@MFG_MV_SET_99,common.run_bmt_cmd,"{'cmd_key':'MFG_MV_SET_99', 'parse_pattern':'Variable to (\d+)', 'Timeout':2000}",,60000,,99,99,,,,BMT
+,FCT,CASE_DETECT_L,@MFG_MV_GET_99,common.run_bmt_cmd,"{'cmd_key':'MFG_MV_GET', 'parse_pattern':'Variable is: (\d+)', 'Timeout':2000}",,60000,,99,99,,,,BMT
+,FCT,CASE_DETECT_L,@CASE_DETECT_L_Low,common.run_bmt_cmd,"{'cmd_key':'GET_GPIO7', 'parse_pattern':'GPIONum=7 Level=(\w+)', 'Timeout':2000}",,60000,,Low,Low,,,,BMT
+,FCT,CASE_DETECT_L,@SLG4T46134_TEST,common.detect_seq,,[[PULSE_INFO]],60000,,,,,,,
+,FCT,CASE_DETECT_L@qcc_sys,@QCC_SYS_CTRL_Pulse_Width,common.get_value_by_key,[[PULSE_INFO]],,3000,,40,60,mS,,,
+,FCT,CASE_DETECT_L@qcc_rst,@QCC_RST_Pulse_Width,common.get_value_by_key,[[PULSE_INFO]],,3000,,5,15,mS,,,
+,FCT,CASE_DETECT_L,@CASE_DETECT_L_High,common.run_bmt_cmd,"{'cmd_key':'GET_GPIO7', 'parse_pattern':'GPIONum=7 Level=(\w+)', 'Timeout':2000}",,60000,,,,,,,BMT
+,FCT,CASE_DETECT_L,@MFG_MV_GET_0,common.run_bmt_cmd,"{'cmd_key':'MFG_MV_GET', 'parse_pattern':'Variable is: (\d+)', 'Timeout':2000}",,60000,,0,0,,,,BMT
+,FCT,CASE_DETECT_L,@Dongle_Disconnect_to_DUT,common.run_bmt_cmd,"{'cmd_key':'Disconnect_DUT_BT', 'parse_pattern':'(Disconnected) \w', 'Timeout':15000}",,60000,,Disconnected,Disconnected,,,,BMT

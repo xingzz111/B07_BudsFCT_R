@@ -1,0 +1,18 @@
+Disable,Group,SubTestName,SubSubTestName,Function,Input,Output,Timeout,Policy,LowerLimit,UpperLimit,Units,Condition,StopOnFail,Notes
+,Fixture,Info,@Scan_PCBA_SN,common.get_scan_sn,[[scanned_sn]],,,,,,,,,
+,Fixture,Info,Check_UOP,common.check_uop,[[[scanned_sn]]],,5000,,,,,,Y,
+,Fixture,Info,@Get_MAC_INFO,common.query_mac_by_sn,[[scanned_sn]],[[mes_info]],5000,,,,,,,
+,Fixture,Info@MACCODE,MACCODE,common.get_value_by_key,[[mes_info]],[[mac_address]],3000,,,,,,,
+,Fixture,Info@LICENSE_KEY,LICENSE_KEY,common.get_value_by_key,[[mes_info]],[[LICENSE_KEY]],3000,,,,,,,
+,Fixture,Info@APTX_LICENSE_KEY,APTX_LICENSE_KEY,common.get_value_by_key,[[mes_info]],[[APTX_LICENSE_KEY]],3000,,,,,,,
+,Fixture,Info,Station_ID,common.station_id,,,5000,,,,,,,
+,Fixture,Info,@Get_BMT_Version,common.run_bmt_cmd,"{'cmd_key':'GET_VERSION', 'parse_pattern':'(.*)'}",,5000,,4.0.0-1225+ff003d5,4.0.0-1225+ff003d5,,,,
+,Fixture,Info,@Get_TestEngine_Version,common.run_bmt_cmd,"{'cmd_key':'GET_TESTENGINE_VERSION', 'parse_pattern':'TestEngineApp.exe (.+\+\w+)'}",,5000,,3.1.1+ba7485d,3.1.1+ba7485d,,,,
+
+,FCT,Power_Rail,@Power_ON,common.dut_power_on,8000,,20000,,--PASS--,--PASS--,,,,
+,FCT,Power_Rail,Relay_Connect_DMM_VIN1_SEL_SW,common.rpc_call,"{'func':'mixdevice.relay', 'args':['DMM_VIN1_SEL_SW']}",,,,,,,,,
+,FCT,Power_Rail,@VOLT_MEAS_DUT_QCC_1V8,common.rpc_call,"{'func':'mixdevice.measureByDMM', 'args':['ch1','7000mv','VOLT_MEAS_MUX_SEL_DUT_QCC_1V8', 0.2]}",,5000,,1700,1900,mV,,,
+,FCT,Power_Rail,@VOLT_MEAS_DUT_QCC_MIC_BIAS,common.rpc_call,"{'func':'mixdevice.measureByDMM', 'args':['ch1','7000mv','VOLT_MEAS_MUX_SEL_DUT_QCC_MIC_BIAS', 0.2, 55]}",,5000,,0,800,mV,,,
+,FCT,Power_Rail,@VOLT_MEAS_DUT_QCC_MIC_1_P,common.rpc_call,"{'func':'mixdevice.measureByDMM', 'args':['ch1','7000mv','VOLT_MEAS_MUX_SEL_DUT_QCC_MIC_1_P', 0.2, 56]}",,5000,,0,800,mV,,,
+,FCT,Power_Rail,@VOLT_MEAS_DUT_VPU_PDM_CLK,common.rpc_call,"{'func':'mixdevice.measureByDMM', 'args':['ch1','7000mv','VOLT_MEAS_MUX_SEL_DUT_VPU_PDM_CLK', 0.2, 57]}",,5000,,0,200,mV,,,
+,FCT,Power_Rail,@VOLT_MEAS_DUT_VPU_PDM_DAT,common.rpc_call,"{'func':'mixdevice.measureByDMM', 'args':['ch1','7000mv','VOLT_MEAS_MUX_SEL_DUT_VPU_PDM_DAT', 0.2, 58]}",,5000,,0,200,mV,,,

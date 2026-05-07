@@ -1,0 +1,33 @@
+#!/bin/bash
+
+sudo true
+
+BasePath=$(cd "$(dirname "$0")";pwd)
+
+echo "-------------------- CreateApp Start --------------------"
+
+if [ -f $BasePath/src/spec/PRMTester_macos.spec ]; then
+	cd $BasePath
+	rm -rf dist
+	rm -rf build
+	rm -rf __pycache__
+	pyinstaller $BasePath/src/spec/PRMTester_macos.spec
+fi
+
+if [ -d $BasePath/dist/PRMTester.app ]; then
+  mkdir -p $BasePath/dist/PRMTester.app/project/configure
+  cp -r -p -f $BasePath/src/prmLib $BasePath/dist/PRMTester.app/project/
+  cp -r -p -f $BasePath/src/profile $BasePath/dist/PRMTester.app/project/
+  cp -r -p -f $BasePath/src/configure $BasePath/dist/PRMTester.app/project/
+  # cp -r -p -f $BasePath/src/seqcore $BasePath/dist/PRMTester.app/project/
+  rm -rf $BasePath/dist/PRMTester.app/project/configure/*.py
+  rm -rf $BasePath/dist/PRMTester.app/project/configure/__pycache__
+  ./src/signer/prmsigner_mac -d $BasePath/dist/PRMTester.app/project
+  rm -rf $BasePath/dist/PRMTester
+  rm -rf build
+fi
+
+echo "-------------------- CreateApp End ----------------------"
+
+exit 0
+

@@ -1,0 +1,137 @@
+{
+	"shared_devices": {
+		"i2c_base_ch0": {
+			"class": "I2C",
+			"dev_name": "/dev/i2c-0"
+		},
+		"sg": {
+			"class": "SignalGenerator"
+		},
+		"slot_status_manager": {
+			"class": "SlotManager"
+		}
+
+	},
+	"duts": {
+		"dut0": {
+			"cb_pub": {
+				"class": "ZmqPublisher",
+				"port": 7650,
+				"identity": "CB_PUB_0"
+			},
+			"bmt_pub": {
+				"class": "ZmqPublisher",
+				"port": 6950,
+				"identity": "BMT_PUB_0"
+			},
+			"format_pub": {
+				"class": "ZmqPublisher",
+				"port": 7750,
+				"identity": "FORMAT_PUB_0"
+			},
+			"rp2_device": {
+				"class": "sDevice",
+				"port": "COM100",
+				"baudrate":115200,
+				"publisher": "@cb_pub"
+			},
+	 		"hardware": {
+	 			"class": "HardWare",
+	 			"rp2_device":"@rp2_device",
+	 			"publisher": "@cb_pub"
+	 		},
+	 		"site": 0,
+			"server": {"endpoint": "tcp://*:6100"}
+		},
+		"dut1": {
+			"cb_pub": {
+				"class": "ZmqPublisher",
+				"port": 7651,
+				"identity": "CB_PUB_1"
+			},
+			"bmt_pub": {
+				"class": "ZmqPublisher",
+				"port": 6951,
+				"identity": "BMT_PUB_1"
+			},
+			"format_pub": {
+				"class": "ZmqPublisher",
+				"port": 7751,
+				"identity": "FORMAT_PUB_1"
+			},
+			"rp2_device": {
+				"class": "sDevice",
+				"port": "COM101",
+				"baudrate":115200,
+				"publisher": "@cb_pub"
+			},
+	 		"hardware": {
+	 			"class": "HardWare",
+	 			"rp2_device":"@rp2_device",
+	 			"publisher": "@cb_pub"
+	 		},
+	 		"site": 1,
+			"server": {"endpoint": "tcp://*:6101"}
+		},
+		"dut2": {
+			"cb_pub": {
+				"class": "ZmqPublisher",
+				"port": 7652,
+				"identity": "CB_PUB_2"
+			},
+			"bmt_pub": {
+				"class": "ZmqPublisher",
+				"port": 6952,
+				"identity": "BMT_PUB_2"
+			},
+			"format_pub": {
+				"class": "ZmqPublisher",
+				"port": 7752,
+				"identity": "FORMAT_PUB_2"
+			},
+			"rp2_device": {
+				"class": "sDevice",
+				"port": "COM102",
+				"baudrate":115200,
+				"publisher": "@cb_pub"
+			},
+	 		"hardware": {
+	 			"class": "HardWare",
+	 			"rp2_device":"@rp2_device",
+	 			"publisher": "@cb_pub"
+	 		},
+	 		"site": 2,
+			"server": {"endpoint": "tcp://*:6102"}
+		},
+		"dut3": {
+			"cb_pub": {
+				"class": "ZmqPublisher",
+				"port": 7653,
+				"identity": "CB_PUB_3"
+			},
+			"bmt_pub": {
+				"class": "ZmqPublisher",
+				"port": 6953,
+				"identity": "BMT_PUB_3"
+			},
+			"format_pub": {
+				"class": "ZmqPublisher",
+				"port": 7753,
+				"identity": "FORMAT_PUB_3"
+			},
+			"rp2_device": {
+				"class": "sDevice",
+				"port": "COM103",
+				"baudrate":115200,
+				"publisher": "@cb_pub"
+			},
+	 		"hardware": {
+	 			"class": "HardWare",
+	 			"rp2_device":"@rp2_device",
+	 			"publisher": "@cb_pub"
+	 		},
+	 		"site": 3,
+			"server": {"endpoint": "tcp://*:6103"}
+		}
+	}
+}

@@ -1,0 +1,36 @@
+TESTNAME,SUBTESTNAME,SUBSUBTESTNAME,DESCRIPTION,FUNCTION,PARAM1,PARAM2,LOW,HIGH,UNIT,TIMEOUT,KEY,VAL,FAIL_COUNT,DIMENSION
+Fixture,Info,ResetALL,,common.reset,,,,,,5000,,,,
+Fixture,Info,SN,,common.get_scan_sn,[[scanned_sn]],,,,,5000,,,,
+Fixture,Info,CoboreFWVersion,,common.fw_version,,,,,,5000,,,,
+Fixture,Info,Station_ID,,common.station_name,"D61_CCP_FCT",,,,,5000,,,,
+Fixture,Info,Slot_ID,,common.slot_id,,{{slot_id}},,,,5000,,,,
+Fixture,Info,Vendor_ID,,common.vendor_id,,,,,,5000,,,,
+Fixture,Info,Fixture_ID,,common.fixture_id,,,,,,5000,,,,
+
+Sensore,HaLL_Check,HALL_Deafult,"ccs:1ma cvs:3v",specific.check_hall,Default,,2.8,3.3,mV,5000,,,,
+Sensore,HaLL_Check,HALL_On,"ccs:1ma cvs:3v",specific.check_hall,ON,,0,1,V,5000,,,,
+Sensore,HaLL_Check,Hall_Off,"ccs:1ma cvs:3v",specific.check_hall,OFF,,2.8,3.3,V,5000,,,,
+
+Key,Button_Check,Press,,specific.check_button,ON,,0,1,V,5000,,,,
+Key,Button_Check,Relase,,specific.check_button,OFF,,3,3.6,V,5000,,,,
+
+
+SIL,LED_Check,Right_Blue,"ccs:5ma cvs:3.6v",specific.check_led,CURRENT_SOURCE_TO_DUT_TP5_LED_RHI_B,RELAY_LED_TEST_DUT_TP5_LED_RHI_B,2.3,3.3,V,5000,,,,
+SIL,LED_Check,Right_Green,"ccs:5ma cvs:3.6v",specific.check_led,CURRENT_SOURCE_TO_DUT_TP6_LED_RHI_G,RELAY_LED_TEST_DUT_TP6_LED_RHI_G,2.3,3.3,V,5000,,,,
+SIL,LED_Check,Right_Red,"ccs:20ma cvs:3.6v",specific.check_led,CURRENT_SOURCE_TO_DUT_TP7_LED_RHI_R,RELAY_LED_TEST_DUT_TP7_LED_RHI_R,1.7,2.5,V,5000,,,,
+
+SIL,LED_Check,Left_Blue,"ccs:5ma cvs:3.6v",specific.check_led,CURRENT_SOURCE_TO_DUT_TP8_LED_LHI_B,RELAY_LED_TEST_DUT_TP8_LED_LHI_B,2.3,3.3,V,5000,,,,
+SIL,LED_Check,Left_Green,"ccs:5ma cvs:3.6v",specific.check_led,CURRENT_SOURCE_TO_DUT_TP9_LED_LHI_G,RELAY_LED_TEST_DUT_TP9_LED_LHI_G,2.3,3.3,V,5000,,,,
+SIL,LED_Check,Left_Red,"ccs:20ma cvs:3.6v",specific.check_led,CURRENT_SOURCE_TO_DUT_TP10_LED_LHI_R,RELAY_LED_TEST_DUT_TP10_LED_LHI_R,1.7,2.5,V,5000,,,,
+
+ESD,Voltage_Check,DUT_TP5_LED_RHI_B,"ccs:1ma cvs:10v",specific.check_esd,CURRENT_SOURCE_TO_DUT_TP5_LED_RHI_B,,6,7,V,5000,,,,
+ESD,Voltage_Check,DUT_TP6_LED_RHI_G,"ccs:1ma cvs:10v",specific.check_esd,CURRENT_SOURCE_TO_DUT_TP6_LED_RHI_G,,6,7,V,5000,,,,
+ESD,Voltage_Check,DUT_TP7_LED_RHI_R,"ccs:1ma cvs:10v",specific.check_esd,CURRENT_SOURCE_TO_DUT_TP7_LED_RHI_R,,6,7,V,5000,,,,
+ESD,Voltage_Check,DUT_TP8_LED_LHI_B,"ccs:1ma cvs:10v",specific.check_esd,CURRENT_SOURCE_TO_DUT_TP8_LED_LHI_B,,6,7,V,5000,,,,
+ESD,Voltage_Check,DUT_TP9_LED_LHI_G,"ccs:1ma cvs:10v",specific.check_esd,CURRENT_SOURCE_TO_DUT_TP9_LED_LHI_G,,6,7,V,5000,,,,
+ESD,Voltage_Check,DUT_TP10_LED_LHI_R,"ccs:1ma cvs:10v",specific.check_esd,CURRENT_SOURCE_TO_DUT_TP10_LED_LHI_R,,6,7,V,5000,,,,
+ESD,Voltage_Check,TP11_POGO_5V_L,"ccs:1ma cvs:10v",specific.check_esd,CURRENT_SOURCE_TO_DUT_TP11_POGO_5V_L,,6,7,V,5000,,,,
+ESD,Voltage_Check,DUT_TP12_HI_DATA_L,"ccs:50ua cvs:3v",specific.check_esd_specific,CURRENT_SOURCE_TO_DUT_TP12_HI_DATA_L,,1.8,2.2,V,50000,,,,
+ESD,Voltage_Check,DUT_TP13_POGO_5V_R,"ccs:1ma cvs:10v",specific.check_esd,CURRENT_SOURCE_TO_DUT_TP13_POGO_5V_R,,6,7,V,5000,,,,
+ESD,Voltage_Check,DUT_TP14_HI_DATA_R,"ccs:50ua cvs:3v",specific.check_esd_specific,CURRENT_SOURCE_TO_DUT_TP14_HI_DATA_R,,1.8,2.2,V,50000,,,,
+ESD,Voltage_Check,DUT_TP23_VLED,"ccs:1ma cvs:10v",specific.check_esd,CURRENT_SOURCE_TO_DUT_TP23_VLED,,6,7,V,5000,,,,

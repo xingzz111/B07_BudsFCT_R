@@ -1,0 +1,8 @@
+{
+    "usb_port_config": {
+        "slot1": 100,
+        "slot2": 102,
+        "slot3": 104,
+        "slot4": 106
+    }
+}

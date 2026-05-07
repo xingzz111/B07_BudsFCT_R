@@ -1,0 +1,34 @@
+{
+	"shared_devices": {
+		"i2c_base_ch0": {
+			"class": "I2C",
+			"dev_name": "/dev/i2c-0"
+		},
+		"cb_pub": {
+			"class": "ZmqPublisher",
+			"port": 7650,
+			"identity": "CB_PUB"
+		},
+		"uart_pub": {
+			"class": "ZmqPublisher",
+			"port": 6850,
+			"identity": "UART0_PUB"
+		},
+		"mix_dev_rpc": {
+			"class": "MixRpc",
+			"ip": "169.254.1.32",
+			"port": "7801",
+			"publisher": "@cb_pub"
+		},
+		"fixture_ctrl": {
+			"class": "FixtureClient",
+			"nFixtureId": 0
+		}
+	},
+	"duts": {
+		"dut0": {
+			"site": 0,
+			"server": {"endpoint": "tcp://*:6100"}
+		}
+	}
+}

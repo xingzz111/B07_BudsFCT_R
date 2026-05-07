@@ -1,0 +1,14 @@
+Disable,Group,SubTestName,SubSubTestName,Function,Input,Output,Timeout,Policy,LowerLimit,UpperLimit,Units,Condition,StopOnFail,Notes
+,FCT,Info,@Get_BMT_Version,common.run_bmt_cmd,"{'cmd_key':'GET_VERSION', 'parse_pattern':'BMT: (.*),'}",,50000,,5.1.0-1286+e381751,5.1.0-1286+e381751,,,,BMT
+,FCT,Info,@Get_TestEngine_Version,common.run_bmt_cmd,"{'cmd_key':'GET_TESTENGINE_VERSION', 'parse_pattern':'TestEngineApp.exe (.+\+\w+)'}",,50000,,3.1.1+ba7485d,3.1.1+ba7485d,,,,TestEngine
+,FCT,Info,Power_ON,common.dut_power_on,8000,,20000,,4900,5100,mV,,,PSU Module
+,FCT,Info,@Get_USB_Serial_Number,common.run_bmt_cmd,"{'cmd_key':'READ_USB_SN_2', 'parse_pattern':'USBSerialNumberString=.([\w\s]+).'}",[[scanned_sn]],30000,,,,,,Y,BMT
+
+,FCT,BMT_DIAGS,@Read_Diag_FW_Version,common.run_bmt_cmd,"{'cmd_key':'FW_VERSION', 'cmd_args':[[[scanned_sn]]], 'expect_keyword':'ProductInfo.FirmwareVersion.Status Version', 'parse_pattern':'Version=([\w\.\+-]+)', 'Timeout':5000}",,20000,,0.0.1-4+g5e20970,0.0.1-4+g5e20970,,,,BMT
+,FCT,BMT_DIAGS,@MFI_Auth_Test,common.run_bmt_cmd,"{'cmd_key':'MFI_AUTH', 'cmd_args':[[[scanned_sn]]], 'parse_pattern':'Version=([\w\s]+)\s\(','Timeout':6000}",,20000,,AUTHIC 7,AUTHIC 7,,,,
+,FCT,BMT_DIAGS,@Read_BD_ADDRESS,common.run_bmt_cmd,"{'cmd_key':'GET_MAC_ADDRESS', 'cmd_args':[[[scanned_sn]]], 'expect_keyword':'MACAddress=', 'parse_pattern':'MACAddress=(0x\w+)', 'Timeout':5000}",,60000,,,,,,,
+,FCT,BMT_DIAGS,@READ_DeviceName,common.run_bmt_cmd,"{'cmd_key':'READ_DEVICENAME', 'expect_keyword':'SPI_C1_', 'parse_pattern':'DeviceName=.([\w\.]+).', 'Timeout':12000}",,60000,,,,,,,BMT
+,FCT,BMT_DIAGS,@Check_DeviceID_Key,common.run_bmt_cmd,"{'cmd_key':'CHECK_DEVICEID_KEY',  'cmd_args':[[[scanned_sn]]], 'expect_keyword':'Auth.ValidateDeviceIdentityKeypair.Result', 'Timeout':20000}",,60000,,--PASS--,--PASS--,,,,BMT
+,FCT,BMT_DIAGS,@Read_HW_Version,common.run_bmt_cmd,"{'cmd_key':'GET_HW_REVISION',  'cmd_args':[[[scanned_sn]]], 'expect_keyword':'HWRevision=', 'parse_pattern':'HWRevision=([\w\.]+)','Timeout':6000}",,60000,,C1,C1,,,,BMT
+,FCT,BMT_DIAGS,@Get_OTP_Type,common.run_bmt_cmd,"{'cmd_key':'GET_OTP_TYPE', 'cmd_args':[[[scanned_sn]]], 'expect_keyword':'CurrentOtpKeyType=', 'parse_pattern':'CurrentOtpKeyType=(\w+)', 'Timeout':6000}",,60000,,otp_none;otp_prod;otp_deve,,,,,BMT
+,FCT,BMT_DIAGS,@Read_Station_Flag,common.run_bmt_cmd,"{'cmd_key':'CHECK_WRITE_STATION_FLAG', 'cmd_args':[[[scanned_sn]]], 'expect_keyword':' Station1Status=Pass Station2Status=Pass Station3Status=Pass', 'Timeout':5000}",,60000,,--PASS--,--PASS--,,,,BMT

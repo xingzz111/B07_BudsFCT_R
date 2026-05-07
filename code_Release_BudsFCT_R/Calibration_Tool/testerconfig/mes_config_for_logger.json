@@ -1,0 +1,35 @@
+{
+    "station_info": {
+        "project_code": "B06",
+        "project_name": "Aubrey_Case",
+        "station_code": "T001",
+        "station_name": "CASE_Main_FWDL",
+        "terminal_name": "E4_2F_B06_CMB_FWDL_01",
+        "fixture_id": "OSENSB0620250228"
+    },
+    "mes_config": {
+        "heartbeat_interval": 5,
+        "upload_swith": false,
+        "upload_only_pass": false,
+        "host": "http://10.32.23.123/MESWebService/webservice.asmx/",
+        "header": {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Accept-Encoding": "gzip, deflate"
+        },
+        "version": "V1.0",
+        "jig_no": "JIG_NO123456",
+        "log_file_path": "D:\\vault\\StationLog",
+        "mes_log_path": "D:\\vault\\StationLog\\mes",
+        "dut_log_path": "D:\\vault\\StationLog\\dut_log",
+        "mes_dut_log_path": "D:\\vault\\StationLog\\mes_dut_log",
+        "scan_sn_item": ["@Scan_PCBA_SN", "@READ_PCBA_SN", "@writeSN"],
+        "scan_sn_limit": "XXXXXXXXXXX894162XXXXXX",
+        "special_limit_items": [
+
+        ],
+        "pass_limit_items": [
+            "@Check_uop"
+
+        ]
+    }
+}

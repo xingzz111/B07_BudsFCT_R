@@ -1,0 +1,108 @@
+{
+    "group": 1,
+    "slots": 4,
+    "fixture": 1,
+    "simulate": false,
+    "autoscan": false,
+    "project": "CommonPlatform",
+    "HSM": false,
+    "yubi_path": "C:\\SMA\\madi-v0.13.0-0-g00592a1.exe",
+    "gui": {
+        "check_sn_length": false,
+        "sn_length": 14,
+        "check_sn_pattern": true,
+        "sn_pattern": "KSBBMB[0-9a-zA-Z]{8}",
+        "screen_width": 0.9,
+        "screen_height": 0.9
+    },
+    "fixture_config": {
+        "type": "uart",
+        "url": "COM99",
+        "baudrate": 115200,
+        "timeout": 5,
+        "delimiter": "\r\n",
+        "cmd": {
+            "reset": "fixture_reset",
+            "down": "fixture_down",
+            "up": "fixture_up",
+            "in": "fixture_in",
+            "out": "fixture_out"
+        }
+    },
+    "scanner_config": {
+        "slot0": {
+            "ip": "192.168.2.100",
+            "port": 5000,
+            "timeout": 0.1
+        },
+        "slot1": {
+            "ip": "192.168.2.101",
+            "port": 5000,
+            "timeout": 0.1
+        },
+        "slot2": {
+            "ip": "192.168.2.102",
+            "port": 5000,
+            "timeout": 0.1
+        },
+        "slot3": {
+            "ip": "192.168.2.103",
+            "port": 5000,
+            "timeout": 0.1
+        }
+    },
+    "mes_config": {
+        "pdca": false,
+        "audit": true
+    },
+    "station_info": {
+        "station_code": "T002",
+        "station_name": "FWDL",
+        "terminal_name": "E4_2F_B05_FWDL_L",
+        "fixtrue_id": "OSENS202409300001"
+    },
+    "processes": {
+        "engine": {
+            "command": [
+                "\\engine\\run_launcher.bat"
+            ]
+        },
+        "sequencer_0": {
+            "command": [
+                "C:\\Python\\python.exe",
+                "C:\\Python\\Lib\\site-packages\\rtSque\\sequencer\\sequencer.py",
+                "-s",
+                "4",
+                "-t"
+            ]
+        },
+        "logger": {
+            "command": [
+                "C:\\Python\\python.exe",
+                "C:\\Python\\Lib\\site-packages\\rtSque\\loggers\\logger.py "
+            ]
+        }
+    },
+    "process": {
+        "engine": {
+            "command": [
+                "D:\\Overlay\\engine\\run_launcher.bat"
+            ]
+        },
+        "sequencer_0": {
+            "command": [
+                "C:\\Python\\python.exe",
+                "C:\\Python\\Lib\\site-packages\\rtSque\\sequencer\\sequencer.py",
+                "-c",
+                "-s",
+                "0"
+            ]
+        },
+        "logger": {
+            "command": [
+                "C:\\Python\\python.exe",
+                "C:\\Python\\Lib\\site-packages\\rtSque\\loggers\\logger.py "
+            ]
+        }
+    }
+}

@@ -1,0 +1,84 @@
+{
+  "mappings": [
+    {
+      "workstation": "B05_BATTERY",
+      "item": "ShipMode",
+      "index": 50
+    },
+    {
+      "workstation": "B06_FWDL",
+      "item": "USBC_UART_RX_IN",
+      "index": 8
+    },
+    {
+      "workstation": "B06_FWDL",
+      "item": "USBC_UART_TX_IN",
+      "index": 9
+    },
+    {
+      "workstation": "B06_FWDL",
+      "item": "USBC_CON_GND",
+      "index": 10
+    },
+    {
+      "workstation": "B06_FWDL",
+      "item": "USBC_VBUS_IN",
+      "index": 11
+    },
+    {
+      "workstation": "B06_FWDL",
+      "item": "USBC_CC1",
+      "index": 12
+    },
+    {
+      "workstation": "B06_FWDL",
+      "item": "USBC_CC2",
+      "index": 13
+    },
+    {
+      "workstation": "B06_FWDL",
+      "item": "USBC_DP_IN",
+      "index": 14
+    },
+    {
+      "workstation": "B06_FWDL",
+      "item": "USBC_DM_IN",
+      "index": 15
+    },
+    {
+      "workstation": "B06_FWDL",
+      "item": "USBC_SBU",
+      "index": 16
+    },
+    {
+      "workstation": "B06_FWDL",
+      "item": "USBC_SWDIO_IN",
+      "index": 17
+    },
+    {
+      "workstation": "B06_FWDL",
+      "item": "USBC_SWDCLK_IN",
+      "index": 18
+    },
+    {
+      "workstation": "B06_FCT",
+      "item": "BUD_TPF710_COMP_OUT_Voltage_WITHOUT_LOAD",
+      "index": 24
+    },
+    {
+      "workstation": "B06_FCT",
+      "item": "BUD_TPF711_COMP_OUT_Voltage_WITHOUT_LOAD",
+      "index": 25
+    },
+    {
+      "workstation": "B08_FCT",
+      "item": "TXPadCurrent",
+      "index": 24
+    },
+    {
+      "workstation": "B08_FCT",
+      "item": "zero",
+      "index": 25
+    }
+  ]
+}

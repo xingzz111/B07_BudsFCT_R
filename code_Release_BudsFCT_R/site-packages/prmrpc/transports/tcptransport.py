@@ -1,0 +1,53 @@
+# userver.py Demo of simple uasyncio-based echo server
+
+# Released under the MIT licence
+# Copyright (c) Peter Hinch 2019-2020
+import logging
+import ujson
+import gc
+from . import ServerTransport
+try:
+    import asyncio
+except:
+    import uasyncio as asyncio
+
+
+class TcpServerTransport(ServerTransport):
+
+    SIZE = 2048
+    def __init__(self, sreader=None, swriter=None, poll_time_s=5, debug=False):
+        self.sreader = sreader
+        self.swriter = swriter
+        self.poll_time_s = poll_time_s
+        self.lock = asyncio.Lock()
+        self.debug = debug
+        self.logger = logging.getLogger()
+        self.is_logging = False
+
+    async def receive_message(self, poll_time_s=5):
+        poll_time_s = poll_time_s if poll_time_s >= self.poll_time_s else self.poll_time_s
+        message = await asyncio.wait_for(self.sreader.read(self.SIZE), poll_time_s)
+        if self.debug:
+            self.logger.info('Received {} from client {}'.format(ujson.loads(message.rstrip()), self.sreader))
+        return message
+
+    async def send_reply_with_lock(self,reply):
+        with self.lock:
+            await self.send_reply(reply)
+
+    async def send_reply(self, reply):
+        reply += "\r\n"
+        read_to_send = [reply if len(reply)<=self.SIZE else reply[i:i + self.SIZE] for i in range(0, len(reply), self.SIZE)]
+        for cmd in read_to_send:
+            self.swriter.write(cmd)
+            await self.swriter.drain()  # Echo back
+        # await self.sreader.wait_closed()
+        # send reply first then log;
+        # this could cost minor delay of logging timestamp but it reduce rpc rtt.
+        if self.is_logging:
+            if len(reply) > 2048:
+                b_message = reply[:2045] + '...'
+            else:
+                b_message = reply
+            msg = 'Cobra Response:{}'.format(b_message)
+            self.logger.info(msg)

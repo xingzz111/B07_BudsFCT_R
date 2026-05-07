@@ -1,0 +1,112 @@
+name: Windows Release (OSENSTester)
+
+on:
+  workflow_dispatch:
+    inputs:
+      package_only:
+        description: "Skip PyInstaller; copy prebuilt UI exe, bundle engine/configure, sign, build installer."
+        required: false
+        type: boolean
+        default: false
+      installer_version:
+        description: 'Installer/App version passed to Inno (e.g. 1.2.3). If empty on manual run, github.ref_name is used after stripping leading "v".'
+        required: false
+        type: string
+        default: ""
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Setup Python
+        if: ${{ !((github.event_name == 'workflow_dispatch' && github.event.inputs.package_only == 'true') || (github.event_name == 'push' && contains(github.ref_name, '-pkg'))) }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.9"
+          cache: "pip"
+          cache-dependency-path: |
+            CommonPlatform/requirements-build.txt
+
+      - name: Install Inno Setup
+        shell: pwsh
+        run: |
+          choco install innosetup -y --no-progress
+          $possible = @(
+            "C:\Program Files (x86)\Inno Setup 6",
+            "C:\Program Files\Inno Setup 6"
+          )
+          foreach ($p in $possible) {
+            if (Test-Path $p) { Add-Content -Path $env:GITHUB_PATH -Value $p }
+          }
+          if (-not (Get-Command iscc.exe -ErrorAction SilentlyContinue)) {
+            throw "iscc.exe not found in PATH after install"
+          }
+
+      - name: Build OSENSTester + Installer
+        shell: pwsh
+        run: |
+          $verInput = "${{ inputs.installer_version }}"
+          if ([string]::IsNullOrWhiteSpace($verInput)) {
+            $ver = "${{ github.ref_name }}".TrimStart("v")
+          } else {
+            $ver = $verInput.Trim()
+          }
+
+          $tagName = "${{ github.ref_name }}"
+          $tagPackageOnly = ($env:GITHUB_EVENT_NAME -eq "push") -and ($tagName -like "v*") -and ($tagName -like "*-pkg*")
+
+          $packageOnly = ("${{ inputs.package_only }}" -eq "true") -or $tagPackageOnly
+          if ($packageOnly) { Write-Host "package_only=true: skipping PyInstaller" }
+
+          # If tag is like v1.2.3-pkg, use 1.2.3 for Inno/zip filenames.
+          if ($tagPackageOnly -and [string]::IsNullOrWhiteSpace($verInput)) {
+            $ver = ($ver -replace "-pkg.*$","")
+          }
+
+          $params = @{ Python = "python"; ReleaseDir = "code_Release_BudsFCT_R"; Version = $ver }
+          if ($packageOnly) { $params["SkipPyInstaller"] = $true }
+          & ./scripts/build_windows_release.ps1 @params
+
+      - name: Create code release zip
+        shell: pwsh
+        run: |
+          $verInput = "${{ inputs.installer_version }}"
+          if ([string]::IsNullOrWhiteSpace($verInput)) {
+            $ver = "${{ github.ref_name }}".TrimStart("v")
+          } else {
+            $ver = $verInput.Trim()
+          }
+          if (($env:GITHUB_EVENT_NAME -eq "push") -and ("${{ github.ref_name }}" -like "v*") -and ("${{ github.ref_name }}" -like "*-pkg*") -and [string]::IsNullOrWhiteSpace($verInput)) {
+            $ver = ($ver -replace "-pkg.*$","")
+          }
+          $zip = "code_Release_BudsFCT_R_$ver.zip"
+          if (Test-Path $zip) { Remove-Item $zip -Force }
+          Compress-Archive -Path "code_Release_BudsFCT_R\*" -DestinationPath $zip -CompressionLevel Optimal
+          "ZIP_PATH=$zip" | Out-File -FilePath $env:GITHUB_ENV -Append
+
+      - name: Upload workflow artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-release-${{ github.ref_name }}
+          path: |
+            code_Release_BudsFCT_R/Output/*.exe
+            ${{ env.ZIP_PATH }}
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            code_Release_BudsFCT_R/Output/*.exe
+            ${{ env.ZIP_PATH }}

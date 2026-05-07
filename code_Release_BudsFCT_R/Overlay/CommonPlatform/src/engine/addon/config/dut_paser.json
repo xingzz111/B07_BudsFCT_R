@@ -1,0 +1,11 @@
+{
+  "CW2215_Get_Current": " CW2215 Current:(.*)",
+  "read_fatp_sn": "read_fatp_sn:(.*)",
+  "CW2215_Get_Vol": "W2215 Vol:(.*)",
+  "CW2215_Get_Capacity": "W2215 Cap:(.*)",
+  "CW2215_Get_Temperature": "W2215 Temp:(.*)",
+  "L_battery_level": "L battery level:(.*)",
+  "R_battery_level": "R battery level:(.*)",
+  "aw21009_check_chip_id": "AW21009 Chip ID is(.*)",
+  "CW2215_Check_Chip_Id": "CW2215 Chip ID is (.*)"
+}

@@ -1,0 +1,18 @@
+.DS_Store
+
+# Python
+__pycache__/
+*.py[cod]
+
+# IDE
+.idea/
+
+# Build outputs
+build/
+dist/
+OSENSTester/
+Output/
+
+# NOTE: Do NOT ignore release `site-packages/`.
+# We ship the full bundle, but large binaries must be stored via Git LFS
+# (GitHub rejects >100MB files in regular Git).

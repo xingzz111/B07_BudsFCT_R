@@ -1,0 +1,15 @@
+CommonPlatform/src/BMT.log filter=lfs diff=lfs merge=lfs -text
+code_Release_BudsFCT_R/Overlay/CommonPlatform/src/BMT.log filter=lfs diff=lfs merge=lfs -text
+code_Release_BudsFCT_R/Overlay/OSENSTester.exe filter=lfs diff=lfs merge=lfs -text
+code_Release_BudsFCT_R/site-packages/**/*.tar filter=lfs diff=lfs merge=lfs -text
+code_Release_BudsFCT_R/site-packages/**/*.gz filter=lfs diff=lfs merge=lfs -text
+code_Release_BudsFCT_R/site-packages/**/*.dll filter=lfs diff=lfs merge=lfs -text
+code_Release_BudsFCT_R/site-packages/**/*.exe filter=lfs diff=lfs merge=lfs -text
+code_Release_BudsFCT_R/site-packages/**/*.bin filter=lfs diff=lfs merge=lfs -text
+code_Release_BudsFCT_R/site-packages/**/*.dylib filter=lfs diff=lfs merge=lfs -text
+code_Release_BudsFCT_R/site-packages/**/*.7z filter=lfs diff=lfs merge=lfs -text
+code_Release_BudsFCT_R/site-packages/**/*.zip filter=lfs diff=lfs merge=lfs -text
+code_Release_BudsFCT_R/site-packages/**/*.whl filter=lfs diff=lfs merge=lfs -text
+code_Release_BudsFCT_R/site-packages/**/*.pyd filter=lfs diff=lfs merge=lfs -text
+code_Release_BudsFCT_R/site-packages/**/*.dat filter=lfs diff=lfs merge=lfs -text
+code_Release_BudsFCT_R/site-packages/**/*.so filter=lfs diff=lfs merge=lfs -text

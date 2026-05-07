@@ -1,0 +1,215 @@
+{
+    "READ_PCBA_SN": {
+        "send": "Manufacturing.SerialNumber.Get 1",
+        "expect": "."
+    },
+
+    "READ_USB_SN": {
+        "send": "Manufacturing.SerialNumber.Get 3",
+        "expect": "."
+    },
+
+    "FW_VERSION": {
+        "send": "ProductInfo.FirmwareVersion.Get",
+        "expect": "ProductInfo.FirmwareVersion.Status"
+    },
+
+    "I2C_Check": {
+        "send": "Manufacturing.I2CCheck.Get 52,1,1,0",
+        "expect": "Manufacturing.I2CCheck.Status Status=0 StatusQualifier=65"
+    },
+
+    "Get_IMU_L": {
+        "send": "SensorInterface.SensorInfo.Get 0,0,0",
+        "expect": "SensorInterface.SensorInfo.Status",
+        "timeout": 8000
+    },
+
+    "Get_IMU_R": {
+        "send": "SensorInterface.SensorInfo.Get 0,1,0",
+        "expect": "SensorInterface.SensorInfo.Status",
+        "timeout": 8000
+    },
+
+    "MFI_AUTH": {
+        "send": "Manufacturing.MFIVersion.Get",
+        "expect": "Manufacturing.MFIVersion.Status"
+    },
+
+    "WRITE_STATION1_FLAG_PASS": {
+        "send": "Manufacturing.TestStation.SetGet 0,1",
+        "expect": "Manufacturing.TestStation.Status"
+    },
+
+    "WRITE_STATION2_FLAG_PASS": {
+        "send": "Manufacturing.TestStation.SetGet 1,1",
+        "expect": "Manufacturing.TestStation.Status"
+    },
+
+    "WRITE_STATION1_FLAG_FAIL": {
+        "send": "Manufacturing.TestStation.SetGet 0,0",
+        "expect": "Manufacturing.TestStation.Status"
+    },
+
+    "WRITE_STATION2_FLAG_FAIL": {
+        "send": "Manufacturing.TestStation.SetGet 1,0",
+        "expect": "Manufacturing.TestStation.Status"
+    },
+
+    "CHECK_WRITE_STATION": {
+        "send": "Manufacturing.TestStation.Get",
+        "expect": "Manufacturing.TestStation.Status"
+    },
+
+    "SINGLE_BUDS_MODE": {
+        "send": "Debug.SingleBudActivation.SetGet 1",
+        "expect": "Debug.SingleBudActivation.Status enabled=1"
+    },
+
+    "SINGLE_BUDS_MODE_DISABLE": {
+        "send": "Debug.SingleBudActivation.SetGet 0",
+        "expect": "Debug.SingleBudActivation.Status"
+    },
+
+    "APTX_START": {
+        "send": "Manufacturing.APTxLicense.Start",
+        "expect": ".",
+        "delay": 1500
+    },
+
+    "VOICE_LICENSE_START": {
+        "send": "Manufacturing.VoicePromptLicense.Start",
+        "expect": ".",
+        "timeout": 8000
+    },
+
+    "CHECK_DEVICEID_KEY": {
+        "send": "Auth.ValidateDeviceIdentityKeypair.Start",
+        "expect": "Auth.ValidateDeviceIdentityKeypair.Result",
+        "timeout": 20000
+    },
+
+    "WRITE_PRODUCT_NAME": {
+        "send": "Manufacturing.OriginalProductName.SetGet Bose Open Earbuds",
+        "expect": "Manufacturing.OriginalProductName.Status OriginalProductName"
+    },
+
+    "SET_HW_REVISION": {
+        "send": "Manufacturing.HardwareRevision.SetGet C1",
+        "expect": "Manufacturing.HardwareRevision.Status HWRevision="
+    },
+
+    "GET_HW_REVISION": {
+        "send": "Manufacturing.HardwareRevision.Get",
+        "expect": ".",
+        "delay": 1500
+    },
+
+    "GET_VOICE_PROMPT_LICENCE_CHECK": {
+        "send": "Manufacturing.VoicePromptLicense.Get",
+        "expect": "Manufacturing.VoicePromptLicense.Status LicenseKey",
+        "timeout": 8000
+    },
+
+    "GET_OTP_TYPE": {
+        "send": "Auth.OtpKeyType.Get",
+        "expect": "."
+    },
+
+    "CHARGER_ENABLE": {
+        "send": "Debug.TAP.Start \"bms.charger enable\"",
+        "expect": "Debug.TAP.Result"
+    },
+
+    "CHARGER_DISABLE": {
+        "send": "Debug.TAP.Start \"bms.charger disable\"",
+        "expect": "Debug.TAP.Result"
+    },
+
+    "BUTTON": {
+        "send": "Debug.GPIO.Get 0",
+        "expect": "."
+    },
+
+    "READ_BATTERY_VOLT": {
+        "send": "BatteryDebug.Voltage.Get",
+        "expect": "BatteryDebug.Voltage.Status Voltage="
+    },
+
+    "GET_BATTERY_TEMPERATURE": {
+        "send": "BatteryDebug.Temperature.Get",
+        "expect": "BatteryDebug.Temperature.Status Temperature="
+    },
+
+    "COMPONENT_ID": {
+        "send": "ProductInfo.ComponentID.Get",
+        "expect": "."
+    },
+
+    "GET_MAC_ADDRESS": {
+        "send": "ProductInfo.MACAddress.Get",
+        "expect": "."
+    },
+
+    "SET_SHIP_MODE": {
+        "send": "Control.ShipMode.Start",
+        "expect": "."
+    },
+
+    "SET_SHIP_MODE_3000": {
+        "send": "Control.ShipMode.Start 3000",
+        "expect": ".",
+        "timeout": 5000
+    },
+
+    "MIC1_ENABLE": {
+        "send": "Manufacturing.MicRouting.SetGet 0, 1",
+        "expect": "."
+    },
+
+    "MIC1_DISABLE": {
+        "send": "Manufacturing.MicRouting.SetGet 0, 0",
+        "expect": "."
+    },
+
+    "VPU_ENABLE": {
+        "send": "Manufacturing.MicRouting.SetGet 1, 1",
+        "expect": "."
+    },
+
+    "VPU_DISABLE": {
+        "send": "Manufacturing.MicRouting.SetGet 1, 0",
+        "expect": "."
+    },
+
+    "DUT_POWER_OFF": {
+        "send": "Control.Power.Start 0",
+        "expect": "."
+    },
+
+    "WRITE_STATION3_FLAG_FCT": {
+        "send": "Manufacturing.TestStation.SetGet 2,1",
+        "expect": "Manufacturing.TestStation.Status"
+    },
+
+    "DISABLE_CHARGING": {
+        "send": "Manufacturing.ChargerEnabled.SetGet 0",
+        "expect": "."
+    },
+
+    "MFG_MV_SET_99_USB": {
+        "send": "Debug.TAP.Start \"mfg.mv set, 99\"",
+        "expect": "."
+    },
+
+    "MFG_MV_GET_USB": {
+        "send": "Debug.TAP.Start \"mfg.mv get\"",
+        "expect": "."
+    },
+
+    "GET_GPIO7_USB": {
+        "send": "Debug.GPIO.Get 7",
+        "expect": "."
+    }
+
+}

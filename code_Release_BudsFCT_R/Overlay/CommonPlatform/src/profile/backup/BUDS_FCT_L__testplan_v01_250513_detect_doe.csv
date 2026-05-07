@@ -1,0 +1,18 @@
+Disable,Group,SubTestName,SubSubTestName,Function,Input,Output,Timeout,Policy,LowerLimit,UpperLimit,Units,Condition,StopOnFail,Notes
+,Fixture,Info,@Scan_PCBA_SN,common.get_scan_sn,[[scanned_sn]],,,,,,,,,
+,Fixture,Info,@Check_UOP,common.check_uop,[[[scanned_sn]]],,5000,,,,,,Y,
+,Fixture,Info,@Get_MAC_INFO,common.query_mac_by_sn,[[scanned_sn]],[[mes_info]],5000,,,,,,,
+,Fixture,Info@MACCODE,MACCODE,common.get_value_by_key,[[mes_info]],[[mac_address]],3000,,,,,,,
+,Fixture,Info@LICENSE_KEY,LICENSE_KEY,common.get_value_by_key,[[mes_info]],[[LICENSE_KEY]],3000,,,,,,,
+,Fixture,Info@APTX_LICENSE_KEY,APTX_LICENSE_KEY,common.get_value_by_key,[[mes_info]],[[APTX_LICENSE_KEY]],3000,,,,,,,
+,Fixture,Info,Station_ID,common.station_id,[[station_id]],,5000,,,,,,,
+,Fixture,Info,@Get_BMT_Version,common.run_bmt_cmd,"{'cmd_key':'GET_VERSION', 'parse_pattern':'(.*)'}",,5000,,4.0.0-1225+ff003d5,4.0.0-1225+ff003d5,,,,
+,Fixture,Info,@Get_TestEngine_Version,common.run_bmt_cmd,"{'cmd_key':'GET_TESTENGINE_VERSION', 'parse_pattern':'TestEngineApp.exe (.+\+\w+)'}",,5000,,3.1.1+ba7485d,3.1.1+ba7485d,,,,
+
+,FCT,CASE_DETECT_L,Power_off,common.rpc_call,"{'func':'mixdevice.reset'}",,20000,,,,,,,
+,FCT,CASE_DETECT_L,Delay_After_Power_off,common.delay,1000,,20000,,,,,,,
+,FCT,CASE_DETECT_L,@Power_Cycle_Befor_CASE_DETECT_Test,common.dut_power_on,8000,,20000,,--PASS--,--PASS--,,,,
+,FCT,CASE_DETECT_L,@Dongle_Connect_to_DUT,common.run_cmd_admin,"{'cmd_key':'Connect_DUT_BT', 'expect_keyword':'secure: 1', 'Timeout':15000}",,60000,,--PASS--,--PASS--,,,,
+,FCT,CASE_DETECT_L,@CASE_DETECT_L_Low,common.run_cmd_admin,"{'cmd_key':'GET_GPIO7', 'parse_pattern':'GPIONum=7 Level=(\w+)', 'Timeout':15000}",,60000,,Low,Low,,,,
+,FCT,CASE_DETECT_L,@SLG4T46134_TEST,common.detect_seq,,,60000,,40,60,mS,,,
+,FCT,CASE_DETECT_L,@CASE_DETECT_L_High,common.run_cmd_admin,"{'cmd_key':'GET_GPIO7', 'parse_pattern':'GPIONum=7 Level=(\w+)', 'Timeout':15000}",,60000,,High,High,,,,

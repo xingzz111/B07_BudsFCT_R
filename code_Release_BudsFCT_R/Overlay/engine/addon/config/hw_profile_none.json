@@ -1,0 +1,30 @@
+{
+	"shared_devices": {
+		"i2c_base_ch0": {
+			"class": "I2C",
+			"dev_name": "/dev/i2c-0"
+		},
+		"cb_pub": {
+			"class": "ZmqPublisher",
+			"port": 7650,
+			"identity": "CB_PUB"
+		},
+		"uart_pub": {
+			"class": "ZmqPublisher",
+			"port": 6850,
+			"identity": "UART0_PUB"
+		},
+		"rp2_device": {
+			"class": "Rp2Device",
+			"port": "COM9",
+			"baudrate":115200,
+			"publisher": "@cb_pub"
+		}
+	},
+	"duts": {
+		"dut0": {
+			"site": 0,
+			"server": {"endpoint": "tcp://*:6100"}
+		}
+	}
+}
