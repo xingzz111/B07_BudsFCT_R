@@ -28,8 +28,8 @@ Source: "Overlay\*"; DestDir: "D:\Overlay"; Flags: recursesubdirs
 Source: "BMT\*"; DestDir: "D:\BMT"; Flags: recursesubdirs
 Source: "Calibration_Tool\*"; DestDir: "D:\Calibration_Tool"; Flags: recursesubdirs
 Source: "OSENSTester\*"; DestDir: "D:\OSENSTester"; Flags: recursesubdirs
-; 将整个 site-packages 安装到 C 盘固定路径（供 Python/工具链使用）
-Source: "site-packages\*"; DestDir: "C:\Python\Lib\site-packages"; Flags: recursesubdirs
+; 只安装本项目依赖到独立子目录，避免覆盖系统 Python 的 pip/依赖
+Source: "vendor-site-packages\*"; DestDir: "C:\Python\Lib\site-packages\BudsFCT_R_vendor"; Flags: recursesubdirs
 Source: "testerconfig\*"; DestDir: "{%USERPROFILE}\testerconfig"; Flags: recursesubdirs
 
 [Run]
@@ -46,7 +46,7 @@ Type: filesandordirs; Name: "{%USERPROFILE}\testerconfig"
 Type: filesandordirs; Name: "D:\Overlay"
 Type: filesandordirs; Name: "D:\BMT"
 Type: filesandordirs; Name: "D:\Calibration_Tool"
-Type: filesandordirs; Name: "C:\Python\Lib\site-packages"
+Type: filesandordirs; Name: "C:\Python\Lib\site-packages\BudsFCT_R_vendor"
 
 [Code]
 function DeleteExistingShortcut(): Boolean;

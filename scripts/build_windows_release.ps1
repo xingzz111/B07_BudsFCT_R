@@ -39,7 +39,7 @@ $repo = (Resolve-Path $RepoRoot).Path
 $common = Join-Path $repo "CommonPlatform"
 $engine = Join-Path $repo "engine"
 $release = Join-Path $repo $ReleaseDir
-$sitePkgs = Join-Path $release "site-packages"
+$vendorPkgs = Join-Path $release "vendor-site-packages"
 
 if (!(Test-Path -LiteralPath $common)) { throw "Missing CommonPlatform at $common" }
 if (!(Test-Path -LiteralPath $engine)) { throw "Missing engine at $engine" }
@@ -61,11 +61,24 @@ Write-Host "Version: $Version"
 if ($SkipPyInstaller) { Write-Host "Mode: SkipPyInstaller (prebuilt UI exe + sign/package only)" }
 
 #
-# Ensure release site-packages includes runtime deps (bundled to C:\site-packages)
+# Ensure bundled runtime deps (DO NOT overwrite system site-packages)
 #
-Ensure-Dir $sitePkgs
+Ensure-Dir $vendorPkgs
 & $Python -m pip install --upgrade pip | Out-Null
-& $Python -m pip install --target $sitePkgs --upgrade "pywinpty" "pyzmq"
+
+# Keep target clean so a vendored/incomplete tree can't shadow wheels
+foreach ($p in @(
+  (Join-Path $vendorPkgs "zmq"),
+  (Join-Path $vendorPkgs "pywinpty"),
+  (Join-Path $vendorPkgs "winpty")
+)) {
+  if (Test-Path -LiteralPath $p) { Remove-Item -Recurse -Force $p -ErrorAction SilentlyContinue }
+}
+Get-ChildItem -Path $vendorPkgs -Filter "pyzmq-*.dist-info" -ErrorAction SilentlyContinue | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
+Get-ChildItem -Path $vendorPkgs -Filter "pywinpty-*.dist-info" -ErrorAction SilentlyContinue | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
+
+# Force binary wheels on Windows so zmq has compiled _zmq.pyd
+& $Python -m pip install --only-binary=:all: --target $vendorPkgs --upgrade "pywinpty" "pyzmq"
 
 #
 # Step 1: Build OSENSTester (PyInstaller) or package prebuilt exe
@@ -82,14 +95,14 @@ try {
     # Prefer venv site-packages first so pip-installed pyzmq wins over any vendored
     # incomplete `zmq` tree under release site-packages (which would shadow imports).
     $venvSite = & $Python -c "import site; print(site.getsitepackages()[0])"
-    if (Test-Path -LiteralPath $sitePkgs) {
+    if (Test-Path -LiteralPath $vendorPkgs) {
       if ($env:PYTHONPATH) {
-        $env:PYTHONPATH = "$venvSite;$sitePkgs;$env:PYTHONPATH"
+        $env:PYTHONPATH = "$venvSite;$vendorPkgs;$env:PYTHONPATH"
       }
       else {
-        $env:PYTHONPATH = "$venvSite;$sitePkgs"
+        $env:PYTHONPATH = "$venvSite;$vendorPkgs"
       }
-      Write-Host "PYTHONPATH: venv=`"$venvSite`" then release=`"$sitePkgs`""
+      Write-Host "PYTHONPATH: venv=`"$venvSite`" then vendor=`"$vendorPkgs`""
     }
     else {
       $env:PYTHONPATH = "$venvSite;$env:PYTHONPATH".TrimEnd(';')
