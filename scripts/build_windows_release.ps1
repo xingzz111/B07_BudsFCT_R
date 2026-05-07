@@ -60,7 +60,6 @@ Write-Host "ReleaseDir: $release"
 Write-Host "Version: $Version"
 if ($SkipPyInstaller) { Write-Host "Mode: SkipPyInstaller (prebuilt UI exe + sign/package only)" }
 
-#
 # Ensure release site-packages includes runtime deps (bundled to C:\Python\Lib\site-packages)
 #
 Ensure-Dir $sitePkgs
