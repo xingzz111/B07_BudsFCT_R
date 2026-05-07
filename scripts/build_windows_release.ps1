@@ -124,6 +124,7 @@ try {
   Copy-Item (Join-Path $engine "profile\*.csv") ".\dist\profile\" -Force -ErrorAction SilentlyContinue
 
   & ".\src\signer\signer_win.exe" -d ".\dist"
+  if ($LASTEXITCODE -ne 0) { throw "signer_win.exe failed signing dist (exit=$LASTEXITCODE)" }
 
   Move-Item ".\dist" ".\OSENSTester"
   Copy-Item ".\killport.bat" ".\OSENSTester\" -Force
@@ -151,6 +152,12 @@ Ensure-Dir $releaseOverlay
 Sync-Dir $common (Join-Path $releaseOverlay "CommonPlatform")
 Sync-Dir $engine (Join-Path $releaseOverlay "engine")
 
+# Keep R packages clean: remove L legacy CSVs from packaged Overlay
+$overlayEngineProfiles = Join-Path $releaseOverlay "engine\\profile"
+if (Test-Path -LiteralPath $overlayEngineProfiles) {
+  Get-ChildItem -Path $overlayEngineProfiles -Recurse -Filter "BUDS_FCT_L__*.csv" -ErrorAction SilentlyContinue | Remove-Item -Force -ErrorAction SilentlyContinue
+}
+
 #
 # Step 2: Build installer via Inno Setup (expects iscc.exe in PATH)
 #
@@ -163,6 +170,7 @@ try {
   $signer = Join-Path $common "src\\signer\\signer_win.exe"
   if (Test-Path -LiteralPath $signer) {
     & $signer -d ".\\Output"
+    if ($LASTEXITCODE -ne 0) { throw "signer_win.exe failed signing installer Output (exit=$LASTEXITCODE)" }
   }
   else {
     Write-Warning "signer_win.exe not found at $signer (skipping installer signing)"

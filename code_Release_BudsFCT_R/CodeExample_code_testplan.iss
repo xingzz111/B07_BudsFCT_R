@@ -25,6 +25,7 @@ Name:"D:\vault\StationLog";
 
 [Files]
 Source: "Overlay\*"; DestDir: "D:\Overlay"; Flags: recursesubdirs
+Source: "site-packages\*"; DestDir: "D:\Overlay\site-packages"; Flags: recursesubdirs
 Source: "BMT\*"; DestDir: "D:\BMT"; Flags: recursesubdirs
 Source: "Calibration_Tool\*"; DestDir: "D:\Calibration_Tool"; Flags: recursesubdirs
 Source: "OSENSTester\*"; DestDir: "D:\OSENSTester"; Flags: recursesubdirs
